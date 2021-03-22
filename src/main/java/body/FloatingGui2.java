@@ -20,17 +20,32 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     static CommonCell lastSelected = null;
 
+    boolean isRunning = false;
+
+    public void setPause(boolean b) {
+
+        setAlwaysOnTop(!b);
+        isRunning = !b;
+        System.out.println(isRunning);
+    }
+
     public class CommonCell extends JPanel {
 
         MouseAdapter standartClick = new MouseAdapter() {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(!isRunning)
+                    return;
+
                 CommonCell.this.lblValue.setBackground(selectedColor);
                 if (lastSelected != null) {
                     lastSelected.lblValue.setBackground(backgroundColor);
                 }
                 lastSelected = CommonCell.this;
+
+
+
                 switch (e.getButton()) {
                     case 1:
                         leftClick();
@@ -98,19 +113,26 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     public FloatingGui2() {
         super();
-        ClipBoard.setClipBoard("made by: boginni\nSource code: github/boginni/SeaTabalhoChato", false);
+        ClipBoard.setClipBoard("made by: boginni\nSource code: github/boginni/SeaTrabalhoChato", false);
 
         boolean colorShifter = false;
-        String row1[] = {"Client", "Contrato", "Nome", "Rua", "Bairro", "Numero", "Complemento"};
-        String row2[] = {"Coordenadas", "CPF/CNPJ", "TELEFONE", "Email", "Physical Addres", "MAC", "Sinal"};
-        setLayout(new java.awt.GridLayout(2, row1.length, 2, 2));
 
+        String row1[] = {"Client", "Contrato", "Nome", "Vendedor", "Plano", "Data", "CPF/CNPJ", "PlaceHolder"};
+        String row2[] = {"TELEFONE", "CORD",  "Email", "Rua", "Bairro", "Numero", "Complemento", "PlaceHolder"};
+        String row3[] = {"Porta", "CTO", "Cabo", "Physical Addres", "MAC", "Sinal", "PlaceHolder", "PlaceHolder"};
+
+        setLayout(new java.awt.GridLayout(3, row1.length, 2, 2));
 
         for (int i = 0; i < row1.length; i++) {
             add(new CommonCell(row1[i], colorShifter));
         }
+
         for (int i = 0; i < row1.length; i++) {
             add(new CommonCell(row2[i], !colorShifter));
+        }
+
+        for (int i = 0; i < row1.length; i++) {
+            add(new CommonCell(row3[i], !colorShifter));
         }
 
         setAlwaysOnTop(true);
@@ -118,6 +140,7 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         BackgroundListener.addListener(this);
+        setPause(false);
     }
 
     HashMap<Integer, Integer> tableConfig = new HashMap<>();
@@ -144,12 +167,22 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
             setRow(0);
     }
     private int currentRow = 0;
+    boolean colorSwitch = false;
     public void setRow(int row) {
         if(curTable == null)
             return;
         if (row < 0 || row > curTable.getRowCount()) {
             return;
         }
+        if(!isRunning){
+            return;
+        }
+
+        for (CommonCell c : cells){
+            c.lblTitle.setBackground(colorSwitch?primaryColor:secondaryColor);
+        }
+        colorSwitch = !colorSwitch;
+
         currentRow = row;
 
         System.out.println("curRow: "+currentRow);
@@ -184,12 +217,15 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     @Override
     public void keyEvent(boolean b, int i) {
-        if(b){
-            if(i == 57424){
+        if(b && isRunning){
+
+            System.out.println(i);
+
+            if(i == 62){
                 setRow(currentRow+1);
             }
 
-            if(i == 57416){
+            if(i == 60){
                 setRow(currentRow-1);
             }
         }

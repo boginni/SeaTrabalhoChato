@@ -68,6 +68,8 @@ public class MainScreen extends javax.swing.JFrame {
         lblRowsCont = new javax.swing.JLabel();
         javax.swing.JLabel lblTitleColunas = new javax.swing.JLabel();
         lblColCont = new javax.swing.JLabel();
+        btnSwitchTitle = new javax.swing.JButton();
+        switchPause = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -120,6 +122,20 @@ public class MainScreen extends javax.swing.JFrame {
         lblColCont.setText("0");
         jPanel3.add(lblColCont);
 
+        btnSwitchTitle.setText("Remover Titulo");
+        btnSwitchTitle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSwitchTitleActionPerformed(evt);
+            }
+        });
+
+        switchPause.setText("Pause");
+        switchPause.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                switchPauseActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -135,7 +151,9 @@ public class MainScreen extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(btnAddRow, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(btnOpen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addComponent(btnClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnSwitchTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(switchPause, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addComponent(jSeparator1)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(btnAply, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -157,15 +175,19 @@ public class MainScreen extends javax.swing.JFrame {
                     .addComponent(btnAply, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnClear)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnAddRow)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnOpen)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSwitchTitle)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnOpen))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(switchPause))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
         );
 
         pack();
@@ -203,6 +225,7 @@ public class MainScreen extends javax.swing.JFrame {
         }
         if(curGui == null){
             curGui = new FloatingGui2();
+            btnSwitchTitle.setVisible(true);
         }
 
         HashMap<Integer, Integer> config = new HashMap<>();
@@ -231,6 +254,32 @@ public class MainScreen extends javax.swing.JFrame {
         lblRowsCont.setText(String.valueOf(tableContent.getRowCount()));
 
     }//GEN-LAST:event_btnAplyActionPerformed
+    boolean btnSwitchTitleBool = true;
+    private void btnSwitchTitleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchTitleActionPerformed
+        // TODO add your handling code here:
+        if(curGui == null){
+            return;
+        }
+        curGui.dispose();
+        curGui.setUndecorated(btnSwitchTitleBool);
+        curGui.setVisible(true);
+        btnSwitchTitle.setText(!btnSwitchTitleBool? "Remover Titulo": "Mostrar Titulo");
+        btnSwitchTitleBool = !btnSwitchTitleBool;
+        
+    }//GEN-LAST:event_btnSwitchTitleActionPerformed
+    boolean btnSitchPauseBool = true;
+    private void switchPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_switchPauseActionPerformed
+        // TODO add your handling code here:
+        if(curGui == null){
+            return;
+        }
+        curGui.setPause(btnSitchPauseBool);
+        switchPause.setText(btnSitchPauseBool ? "Retomar": "Pausar");
+
+        btnSitchPauseBool = !btnSitchPauseBool;
+
+
+    }//GEN-LAST:event_switchPauseActionPerformed
 
     /**
      * @param args the command line arguments
@@ -272,12 +321,14 @@ public class MainScreen extends javax.swing.JFrame {
     private javax.swing.JButton btnAply;
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnOpen;
+    private javax.swing.JButton btnSwitchTitle;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblColCont;
     private javax.swing.JLabel lblRowsCont;
+    private javax.swing.JButton switchPause;
     public javax.swing.JTable table;
     private javax.swing.JTextArea txtTableField;
     // End of variables declaration//GEN-END:variables
