@@ -1,9 +1,6 @@
 package main;
 
-import body.FloatingGui;
-import body.FloatingGui2;
-import body.MainScreen;
-import body.TableTester;
+import body.*;
 import head.BackgroundListener;
 import head.ClipBoard;
 import head.Bot;
@@ -16,13 +13,10 @@ public class Main {
     public static TableTester tt;
 
     public static void main(String[] args) {
-
+//        new Formatador().setVisible(true);
         new MainScreen().setVisible(true);
         new BackgroundListener().start();
-        if (true) {
-            return;
-        }
-        new FloatingGui2();
+
     }
 
 }

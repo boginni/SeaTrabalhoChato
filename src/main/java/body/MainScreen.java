@@ -7,16 +7,10 @@
 package body;
 
 import head.Table;
-import testing.TableAddTest;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import java.awt.*;
-import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -25,11 +19,29 @@ import java.util.HashMap;
  */
 public class MainScreen extends javax.swing.JFrame {
 
+
+
     /** Creates new form MainScreen */
     public MainScreen() {
         initComponents();
         pack();
+        String[] header = {"Ordem", "Interact ID"};
+        for (int i = 0; i < comboCopy.getItemCount(); i++){
+            DefaultTableModel dtm = new DefaultTableModel(null, header) {
+                @Override
+                public Class<?> getColumnClass(int col) {
+                    return getValueAt(0, col).getClass();
+                }
+
+            };
+
+            copyTables.add(dtm);
+        }
+
+        tableCopy.setModel(copyTables.get(comboCopy.getSelectedIndex()));
     }
+    private ArrayList<DefaultTableModel> copyTables = new ArrayList<>();
+
 
     private static final int N_ROWS = 0;
     private static String[] header = {"Coluna", "ID"};
@@ -40,6 +52,7 @@ public class MainScreen extends javax.swing.JFrame {
         }
 
     };
+
 
     //private JScrollBar vScroll = scrollPane.getVerticalScrollBar();
     private int row;
@@ -54,28 +67,162 @@ public class MainScreen extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane2 = new javax.swing.JScrollPane();
-        txtTableField = new javax.swing.JTextArea();
-        btnAply = new javax.swing.JButton();
-        jSeparator1 = new javax.swing.JSeparator();
+        layoutPan = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable(dtm);
-        btnAddRow = new javax.swing.JButton();
-        btnClear = new javax.swing.JButton();
-        btnOpen = new javax.swing.JButton();
+        tableLayout = new javax.swing.JTable(dtm);
+        jPanel5 = new javax.swing.JPanel();
+        btnLayoutClear = new javax.swing.JButton();
+        btnLayoutAddRow = new javax.swing.JButton();
+        copyPan = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tableCopy = new javax.swing.JTable();
+        comboCopy = new javax.swing.JComboBox<>();
+        btnCopyAddRow = new javax.swing.JButton();
+        btnCopyClear = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        btnSwitchTitle = new javax.swing.JButton();
+        switchPause = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        btnAply = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         javax.swing.JLabel lblTitleLinhas = new javax.swing.JLabel();
         lblRowsCont = new javax.swing.JLabel();
         javax.swing.JLabel lblTitleColunas = new javax.swing.JLabel();
         lblColCont = new javax.swing.JLabel();
-        btnSwitchTitle = new javax.swing.JButton();
-        switchPause = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtTableField = new javax.swing.JTextArea();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        btnOpen = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        txtTableField.setColumns(20);
-        txtTableField.setRows(5);
-        jScrollPane2.setViewportView(txtTableField);
+        layoutPan.setBackground(new java.awt.Color(220, 240, 240));
+
+        tableLayout.setModel(dtm);
+        jScrollPane1.setViewportView(tableLayout);
+
+        jPanel5.setBackground(new java.awt.Color(220, 240, 240));
+        jPanel5.setLayout(new java.awt.GridLayout(1, 2, 10, 5));
+
+        btnLayoutClear.setText("Limpar");
+        btnLayoutClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLayoutClearActionPerformed(evt);
+            }
+        });
+        jPanel5.add(btnLayoutClear);
+
+        btnLayoutAddRow.setText("Nova linha");
+        btnLayoutAddRow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLayoutAddRowActionPerformed(evt);
+            }
+        });
+        jPanel5.add(btnLayoutAddRow);
+
+        javax.swing.GroupLayout layoutPanLayout = new javax.swing.GroupLayout(layoutPan);
+        layoutPan.setLayout(layoutPanLayout);
+        layoutPanLayout.setHorizontalGroup(
+            layoutPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layoutPanLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layoutPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layoutPanLayout.setVerticalGroup(
+            layoutPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layoutPanLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        copyPan.setBackground(new java.awt.Color(240, 220, 240));
+
+        tableCopy.setModel(dtm);
+        jScrollPane4.setViewportView(tableCopy);
+        if (tableCopy.getColumnModel().getColumnCount() > 0) {
+            tableCopy.getColumnModel().getColumn(1).setResizable(false);
+        }
+
+        comboCopy.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mac", "PH e Sinal", "Dados MK", "Colar" }));
+        comboCopy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboCopyActionPerformed(evt);
+            }
+        });
+
+        btnCopyAddRow.setText("Nova Linha");
+        btnCopyAddRow.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopyAddRowActionPerformed(evt);
+            }
+        });
+
+        btnCopyClear.setText("Limpar");
+        btnCopyClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopyClearActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout copyPanLayout = new javax.swing.GroupLayout(copyPan);
+        copyPan.setLayout(copyPanLayout);
+        copyPanLayout.setHorizontalGroup(
+            copyPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(copyPanLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(copyPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(comboCopy, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCopyAddRow, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnCopyClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        copyPanLayout.setVerticalGroup(
+            copyPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(copyPanLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(copyPanLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(copyPanLayout.createSequentialGroup()
+                        .addComponent(comboCopy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCopyAddRow)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCopyClear)
+                        .addGap(0, 93, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+
+        jPanel2.setBackground(new java.awt.Color(240, 240, 220));
+        jPanel2.setLayout(new java.awt.GridLayout(1, 3, 7, 0));
+
+        btnSwitchTitle.setText("Remover Titulo");
+        btnSwitchTitle.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSwitchTitleActionPerformed(evt);
+            }
+        });
+        jPanel2.add(btnSwitchTitle);
+
+        switchPause.setText("Pause");
+        switchPause.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                switchPauseActionPerformed(evt);
+            }
+        });
+        jPanel2.add(switchPause);
+
+        jPanel4.setBackground(new java.awt.Color(240, 200, 200));
 
         btnAply.setText("Aplicar");
         btnAply.addActionListener(new java.awt.event.ActionListener() {
@@ -84,31 +231,7 @@ public class MainScreen extends javax.swing.JFrame {
             }
         });
 
-        table.setModel(dtm);
-        jScrollPane1.setViewportView(table);
-
-        btnAddRow.setText("Nova linha");
-        btnAddRow.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddRowActionPerformed(evt);
-            }
-        });
-
-        btnClear.setText("Limpar");
-        btnClear.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnClearActionPerformed(evt);
-            }
-        });
-
-        btnOpen.setText("Abrir Interface");
-        btnOpen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnOpenActionPerformed(evt);
-            }
-        });
-
-        jPanel3.setLayout(new java.awt.GridLayout(2, 2, 5, 3));
+        jPanel3.setLayout(new java.awt.GridLayout(2, 2, 10, 3));
 
         lblTitleLinhas.setText("Linhas: ");
         jPanel3.add(lblTitleLinhas);
@@ -122,86 +245,106 @@ public class MainScreen extends javax.swing.JFrame {
         lblColCont.setText("0");
         jPanel3.add(lblColCont);
 
-        btnSwitchTitle.setText("Remover Titulo");
-        btnSwitchTitle.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSwitchTitleActionPerformed(evt);
-            }
-        });
+        txtTableField.setColumns(20);
+        txtTableField.setRows(5);
+        jScrollPane2.setViewportView(txtTableField);
 
-        switchPause.setText("Pause");
-        switchPause.addActionListener(new java.awt.event.ActionListener() {
+        jLabel3.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("Tabela de Base");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                        .addComponent(btnAply, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnAply, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        jPanel1.setLayout(new java.awt.GridLayout());
+
+        jButton3.setText("Abrir Copy Controller");
+        jPanel1.add(jButton3);
+
+        jButton4.setText("Abrir Formatador");
+        jPanel1.add(jButton4);
+
+        btnOpen.setText("Abrir Interface");
+        btnOpen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                switchPauseActionPerformed(evt);
+                btnOpenActionPerformed(evt);
             }
         });
+        jPanel1.add(btnOpen);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(btnAddRow, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnOpen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnSwitchTitle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(switchPause, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addComponent(jSeparator1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnAply, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(jScrollPane2)))
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(layoutPan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(copyPan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAply, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnClear)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAddRow)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnOpen)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnSwitchTitle)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(switchPause))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                        .addComponent(layoutPan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(copyPan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnAddRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddRowActionPerformed
+    private void btnLayoutAddRowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLayoutAddRowActionPerformed
         // TODO add your handling code here:
         dtm.addRow(new Object[]{
                 row++,
                 0
         });
-    }//GEN-LAST:event_btnAddRowActionPerformed
+    }//GEN-LAST:event_btnLayoutAddRowActionPerformed
 
-    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+    private void btnLayoutClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLayoutClearActionPerformed
         // TODO add your handling code here:
         if (dtm.getRowCount() > 0) {
             for (int i = dtm.getRowCount() - 1; i > -1; i--) {
@@ -209,13 +352,14 @@ public class MainScreen extends javax.swing.JFrame {
             }
         }
         row = 0;
-    }//GEN-LAST:event_btnClearActionPerformed
+    }//GEN-LAST:event_btnLayoutClearActionPerformed
 
     FloatingGui2 curGui = null;
+    Formatador formatter = null;
+    CopyController copyController = null;
 
     private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
         // TODO add your handling code here:
-
         if( curGui != null && JOptionPane.showConfirmDialog(this,
                 "Isso vai apagar os dados da GUI anterior",
                 "Aviso",
@@ -225,25 +369,37 @@ public class MainScreen extends javax.swing.JFrame {
         }
         if(curGui == null){
             curGui = new FloatingGui2();
+            formatter = new Formatador();
+            copyController = new CopyController();
             btnSwitchTitle.setVisible(true);
         }
 
         HashMap<Integer, Integer> config = new HashMap<>();
 
-        if (table.getCellEditor() != null) {
-            table.getCellEditor().stopCellEditing();
+        if (tableLayout.getCellEditor() != null) {
+            tableLayout.getCellEditor().stopCellEditing();
+        }
+
+        if (tableCopy.getCellEditor() != null) {
+            tableCopy.getCellEditor().stopCellEditing();
         }
 
         for (int i = 0; i < row; i++){
             config.put(
-                    Integer.valueOf(table.getValueAt(i, 1).toString()),
-                    Integer.valueOf(table.getValueAt(i, 0).toString())
+                    Integer.valueOf(tableLayout.getValueAt(i, 1).toString()),
+                    Integer.valueOf(tableLayout.getValueAt(i, 0).toString())
             );
         }
 
         curGui.setTable(tableContent, config);
+        copyController.setTable(curGui, formatter);
+
+
+
+        copyController.setConfig(copyTables);
 
     }//GEN-LAST:event_btnOpenActionPerformed
+
 
     Table tableContent;
 
@@ -281,6 +437,24 @@ public class MainScreen extends javax.swing.JFrame {
 
     }//GEN-LAST:event_switchPauseActionPerformed
 
+    private void comboCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboCopyActionPerformed
+        // TODO add your handling code here:
+        tableCopy.setModel(copyTables.get(comboCopy.getSelectedIndex()));
+    }//GEN-LAST:event_comboCopyActionPerformed
+    int cpyRow = 0;
+    private void btnCopyAddRowActionPerformed(java.awt.event.ActionEvent evt) {                                              
+        // TODO add your handling code here:
+        copyTables.get(comboCopy.getSelectedIndex()).addRow(new Object[]{
+                cpyRow++,
+                0
+        });
+    }
+
+    private void btnCopyClearActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        // TODO add your handling code here:
+
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -317,19 +491,32 @@ public class MainScreen extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddRow;
     private javax.swing.JButton btnAply;
-    private javax.swing.JButton btnClear;
+    private javax.swing.JButton btnCopyAddRow;
+    private javax.swing.JButton btnCopyClear;
+    private javax.swing.JButton btnLayoutAddRow;
+    private javax.swing.JButton btnLayoutClear;
     private javax.swing.JButton btnOpen;
     private javax.swing.JButton btnSwitchTitle;
+    private javax.swing.JComboBox<String> comboCopy;
+    private javax.swing.JPanel copyPan;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JPanel layoutPan;
     private javax.swing.JLabel lblColCont;
     private javax.swing.JLabel lblRowsCont;
     private javax.swing.JButton switchPause;
-    public javax.swing.JTable table;
+    private javax.swing.JTable tableCopy;
+    public javax.swing.JTable tableLayout;
     private javax.swing.JTextArea txtTableField;
     // End of variables declaration//GEN-END:variables
 

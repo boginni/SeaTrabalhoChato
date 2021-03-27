@@ -22,10 +22,10 @@ public class ClipBoard {
     private static TimerTask copyChecker = new TimerTask(){
         @Override
         public void run() {
+
             if(onChangeCopy){
                 return;
             }
-
 
             String curClip = getClipBoard();
             
@@ -62,8 +62,6 @@ public class ClipBoard {
     
     public static void addCopyListener(Object target){
 
-
-
         if(!isRunningCopyChecker && copyListenerTargets.size() == 0){
             copyTimer.schedule(copyChecker, 100l, 100l);
             isRunningCopyChecker = true;
@@ -92,6 +90,7 @@ public class ClipBoard {
         StringSelection testData;
         testData = new StringSelection(str);
         c.setContents(testData, testData);
+
         if(!naturalCopy){
             oldClip = str;
         }
