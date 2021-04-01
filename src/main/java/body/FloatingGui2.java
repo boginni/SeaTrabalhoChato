@@ -257,6 +257,9 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
         if (curTable != null)
             setRow(0);
     }
+    public int getRowCont(){
+        return (curTable != null )?curTable.getRowCount():0;
+    }
 
     private int currentRow = 0;
     boolean colorSwitch = false;

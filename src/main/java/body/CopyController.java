@@ -318,6 +318,11 @@ public class CopyController extends javax.swing.JFrame implements
     boolean onAction = false;
     private void setCurrentIndex(int selectedIndex) {
         currentIndex = selectedIndex;
+        if(config[currentIndex] != null){
+            progressCurrent.setMaximum(config[currentIndex].size());
+        }
+
+        progressCurrent.setValue(0);
         setCurrentStep(0);
     }
 
@@ -328,8 +333,12 @@ public class CopyController extends javax.swing.JFrame implements
     void setCurrentStep(int newStep){
         if(config[currentIndex] == null)
             return;
+        if(newStep > config[currentIndex].size() || newStep < 0){
+            return;
+        }
+        progressCurrent.setValue(newStep);
         currentStep = newStep;
-        lblCurStep.setText(String.valueOf(currentStep));
+        lblCurStep.setText((config[currentIndex].size() == currentStep)?"Completo":String.valueOf(currentStep));
     }
 
     public void setConfig(ArrayList<DefaultTableModel> copyTables) {
@@ -344,8 +353,11 @@ public class CopyController extends javax.swing.JFrame implements
                 Vector v2 = (Vector) v.get(j);
                 config[i].add(Integer.valueOf(v2.get(1).toString()));
             }
-
         }
+        if(config[currentIndex] != null){
+            progressCurrent.setMaximum(config[currentIndex].size());
+        }
+        setCurrentStep(0);
     }
 
     ArrayList<Integer> config[] = new ArrayList[4];
@@ -355,6 +367,7 @@ public class CopyController extends javax.swing.JFrame implements
 
     public void setTable(FloatingGui2 curGui, Formatador formatter) {
         tableInterface = curGui;
+        progressGeral.setMaximum(tableInterface.getRowCont());
         this.formatter = formatter;
     }
 
@@ -404,8 +417,9 @@ public class CopyController extends javax.swing.JFrame implements
                 formatter.requestFocus();
                 if(!onPause)
                     btnPauseActionPerformed(null);
-                setAlwaysOnTop(true);
-                setAlwaysOnTop(false);
+                formatter.setAlwaysOnTop(true);
+                formatter.setAlwaysOnTop(false);
+                setCurrentStep(currentStep+1);
             } else {
                 tableInterface.pasteCell(getCurrentInteract(), curClip);
                 setCurrentStep(currentStep+1);
@@ -415,10 +429,10 @@ public class CopyController extends javax.swing.JFrame implements
 
     }
 
-
     int defaultRow = 0;
     @Override
     public void onRowChange(int newRow) {
+        progressGeral.setValue(newRow);
         setCurrentIndex(defaultRow);
         comboCurAction.setSelectedIndex(defaultRow);
     }
@@ -428,6 +442,9 @@ public class CopyController extends javax.swing.JFrame implements
         for(int i = 0; i < vars.length; i++){
             tableInterface.pasteCell(targets[i], vars[i]);
             new FloatingGui2.ColorFade(tableInterface.getCell(targets[i]), Color.red, new Color(255, 220, 220), 2500);
+        }
+        if(onPause){
+            btnPauseActionPerformed(null);
         }
     }
 }

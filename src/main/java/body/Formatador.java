@@ -48,10 +48,11 @@ public class Formatador extends javax.swing.JFrame {
         javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         btnFormat = new javax.swing.JButton();
-        spinnerTarget = new javax.swing.JSpinner();
-        spinnerTarget1 = new javax.swing.JSpinner();
-        spinnerTarget2 = new javax.swing.JSpinner();
-        spinnerTarget3 = new javax.swing.JSpinner();
+        spinnerCTO = new javax.swing.JSpinner();
+        spinnerCable = new javax.swing.JSpinner();
+        spinnerCoords = new javax.swing.JSpinner();
+        spinnerPort = new javax.swing.JSpinner();
+        btnClear = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -91,13 +92,20 @@ public class Formatador extends javax.swing.JFrame {
             }
         });
 
-        spinnerTarget.setModel(new javax.swing.SpinnerNumberModel(17, null, null, 1));
+        spinnerCTO.setModel(new javax.swing.SpinnerNumberModel(17, null, null, 1));
 
-        spinnerTarget1.setModel(new javax.swing.SpinnerNumberModel(18, null, null, 1));
+        spinnerCable.setModel(new javax.swing.SpinnerNumberModel(18, null, null, 1));
 
-        spinnerTarget2.setModel(new javax.swing.SpinnerNumberModel(9, null, null, 1));
+        spinnerCoords.setModel(new javax.swing.SpinnerNumberModel(9, null, null, 1));
 
-        spinnerTarget3.setModel(new javax.swing.SpinnerNumberModel(16, null, null, 1));
+        spinnerPort.setModel(new javax.swing.SpinnerNumberModel(16, null, null, 1));
+
+        btnClear.setText("Limpar");
+        btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnClearActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -119,20 +127,21 @@ public class Formatador extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txtCTO)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spinnerTarget, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(spinnerCTO, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spinnerTarget3))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtCoord, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spinnerTarget2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 1, Short.MAX_VALUE))
+                        .addComponent(spinnerPort))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txtCabo, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spinnerTarget1)))
+                        .addComponent(spinnerCable))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtCoord, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(spinnerCoords, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 1, Short.MAX_VALUE))
+                    .addComponent(btnClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -147,28 +156,30 @@ public class Formatador extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtCoord, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinnerTarget2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinnerCoords, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtCTO, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinnerTarget, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinnerCTO, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinnerTarget3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinnerPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtCabo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spinnerTarget1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(spinnerCable, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnFormat)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnClear)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnExport))
                     .addComponent(jScrollPane1))
                 .addContainerGap())
@@ -257,10 +268,10 @@ public class Formatador extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         String strs[] = {txtCoord.getText(), txtCTO.getText(), txtPort.getText(), txtCabo.getText()};
-        int ints[] = {(Integer) spinnerTarget.getValue(),
-                (Integer) spinnerTarget1.getValue(),
-                (Integer) spinnerTarget2.getValue(),
-                (Integer) spinnerTarget3.getValue()};
+        int ints[] = {(Integer) spinnerCoords.getValue(),
+                (Integer) spinnerCTO.getValue(),
+                (Integer) spinnerPort.getValue(),
+                (Integer) spinnerCable.getValue()};
         for (Object e:exportListeners
              ) {
             ((ExportListener)e).onExport(strs,ints);
@@ -271,6 +282,12 @@ public class Formatador extends javax.swing.JFrame {
     private void txtPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPortActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPortActionPerformed
+
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
+        // TODO add your handling code here:
+        clear();
+        
+    }//GEN-LAST:event_btnClearActionPerformed
 
     /**
      * @param args the command line arguments
@@ -308,14 +325,15 @@ public class Formatador extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnClear;
     private javax.swing.JButton btnExport;
     private javax.swing.JButton btnFormat;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSpinner spinnerTarget;
-    private javax.swing.JSpinner spinnerTarget1;
-    private javax.swing.JSpinner spinnerTarget2;
-    private javax.swing.JSpinner spinnerTarget3;
+    private javax.swing.JSpinner spinnerCTO;
+    private javax.swing.JSpinner spinnerCable;
+    private javax.swing.JSpinner spinnerCoords;
+    private javax.swing.JSpinner spinnerPort;
     private javax.swing.JTextField txtCTO;
     private javax.swing.JTextField txtCabo;
     private javax.swing.JTextField txtCoord;

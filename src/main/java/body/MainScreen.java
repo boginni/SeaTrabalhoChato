@@ -19,8 +19,6 @@ import java.util.HashMap;
  */
 public class MainScreen extends javax.swing.JFrame {
 
-
-
     /** Creates new form MainScreen */
     public MainScreen() {
         initComponents();
@@ -166,7 +164,7 @@ public class MainScreen extends javax.swing.JFrame {
             }
         });
 
-        btnCopyClear.setText("Limpar");
+        btnCopyClear.setText("Remover Linha");
         btnCopyClear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCopyClearActionPerformed(evt);
@@ -282,12 +280,22 @@ public class MainScreen extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
-        jButton3.setText("Abrir Copy Controller");
+        jButton3.setText("Atualizar CopyController");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         jPanel1.add(jButton3);
 
         jButton4.setText("Abrir Formatador");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
         jPanel1.add(jButton4);
 
         btnOpen.setText("Abrir Interface");
@@ -369,9 +377,12 @@ public class MainScreen extends javax.swing.JFrame {
         }
         if(curGui == null){
             curGui = new FloatingGui2();
-            formatter = new Formatador();
+        
             copyController = new CopyController();
             btnSwitchTitle.setVisible(true);
+        }
+        if(formatter == null){
+            formatter = new Formatador();
         }
 
         HashMap<Integer, Integer> config = new HashMap<>();
@@ -410,6 +421,7 @@ public class MainScreen extends javax.swing.JFrame {
         lblRowsCont.setText(String.valueOf(tableContent.getRowCount()));
 
     }//GEN-LAST:event_btnAplyActionPerformed
+
     boolean btnSwitchTitleBool = true;
     private void btnSwitchTitleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchTitleActionPerformed
         // TODO add your handling code here:
@@ -423,6 +435,7 @@ public class MainScreen extends javax.swing.JFrame {
         btnSwitchTitleBool = !btnSwitchTitleBool;
         
     }//GEN-LAST:event_btnSwitchTitleActionPerformed
+    
     boolean btnSitchPauseBool = true;
     private void switchPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_switchPauseActionPerformed
         // TODO add your handling code here:
@@ -440,7 +453,31 @@ public class MainScreen extends javax.swing.JFrame {
     private void comboCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboCopyActionPerformed
         // TODO add your handling code here:
         tableCopy.setModel(copyTables.get(comboCopy.getSelectedIndex()));
+        cpyRow = copyTables.get(comboCopy.getSelectedIndex()).getRowCount();
     }//GEN-LAST:event_comboCopyActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        if(copyController != null){
+            copyController.setConfig(copyTables);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void btnCopyClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyClearActionPerformed
+        // TODO add your handling code here:
+        if(tableCopy.getSelectedRow() != -1){
+            copyTables.get(comboCopy.getSelectedIndex()).removeRow(tableCopy.getSelectedRow());
+            System.out.println("Linha removida");
+        }
+    }//GEN-LAST:event_btnCopyClearActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        if(formatter == null){
+            formatter = new Formatador();
+            formatter.setVisible(true);
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
     int cpyRow = 0;
     private void btnCopyAddRowActionPerformed(java.awt.event.ActionEvent evt) {                                              
         // TODO add your handling code here:
@@ -448,11 +485,6 @@ public class MainScreen extends javax.swing.JFrame {
                 cpyRow++,
                 0
         });
-    }
-
-    private void btnCopyClearActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        // TODO add your handling code here:
-
     }
 
     /**

@@ -6,8 +6,6 @@ public class Table {
     int rowCount;
     int columCont;
 
-
-
     public Table(String table) {
         String[] rows = table.split("\n");
         rowCount = rows.length;
@@ -18,7 +16,6 @@ public class Table {
         }
 
     }
-
 
     public String getCell(int row, int colum){
         return tableContent[row][colum];

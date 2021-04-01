@@ -50,8 +50,7 @@ public class ClipBoard {
         }
         
     };
-    
-    
+
     public static boolean hasSameBoard(){
         return getClipBoard().equals(oldClip);
     }

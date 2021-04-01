@@ -261,7 +261,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnCopyClear">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Limpar"/>
+            <Property name="text" type="java.lang.String" value="Remover Linha"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCopyClearActionPerformed"/>
@@ -427,13 +427,19 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="jButton3">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Abrir Copy Controller"/>
+            <Property name="text" type="java.lang.String" value="Atualizar CopyController"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton3ActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="jButton4">
           <Properties>
             <Property name="text" type="java.lang.String" value="Abrir Formatador"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton4ActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnOpen">
           <Properties>
