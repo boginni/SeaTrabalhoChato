@@ -51,7 +51,6 @@ public class MainScreen extends javax.swing.JFrame {
 
     };
 
-
     //private JScrollBar vScroll = scrollPane.getVerticalScrollBar();
     private int row;
     private boolean isAutoScroll;
@@ -77,6 +76,9 @@ public class MainScreen extends javax.swing.JFrame {
         comboCopy = new javax.swing.JComboBox<>();
         btnCopyAddRow = new javax.swing.JButton();
         btnCopyClear = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        btnSave = new javax.swing.JButton();
+        btnLoad = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         btnSwitchTitle = new javax.swing.JButton();
         switchPause = new javax.swing.JButton();
@@ -92,7 +94,7 @@ public class MainScreen extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        btnAbrirFormatador = new javax.swing.JButton();
         btnOpen = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -197,9 +199,28 @@ public class MainScreen extends javax.swing.JFrame {
                         .addComponent(btnCopyAddRow)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCopyClear)
-                        .addGap(0, 93, Short.MAX_VALUE)))
+                        .addGap(0, 73, Short.MAX_VALUE)))
                 .addContainerGap())
         );
+
+        jPanel6.setBackground(new java.awt.Color(240, 240, 220));
+        jPanel6.setLayout(new java.awt.GridLayout(1, 3, 7, 0));
+
+        btnSave.setText("Salvar");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnSave);
+
+        btnLoad.setText("Carregar");
+        btnLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnLoad);
 
         jPanel2.setBackground(new java.awt.Color(240, 240, 220));
         jPanel2.setLayout(new java.awt.GridLayout(1, 3, 7, 0));
@@ -290,13 +311,13 @@ public class MainScreen extends javax.swing.JFrame {
         });
         jPanel1.add(jButton3);
 
-        jButton4.setText("Abrir Formatador");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        btnAbrirFormatador.setText("Abrir Formatador");
+        btnAbrirFormatador.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                btnAbrirFormatadorActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton4);
+        jPanel1.add(btnAbrirFormatador);
 
         btnOpen.setText("Abrir Interface");
         btnOpen.addActionListener(new java.awt.event.ActionListener() {
@@ -314,14 +335,15 @@ public class MainScreen extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(layoutPan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(copyPan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(copyPan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -332,13 +354,15 @@ public class MainScreen extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(layoutPan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(copyPan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(copyPan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -362,21 +386,21 @@ public class MainScreen extends javax.swing.JFrame {
         row = 0;
     }//GEN-LAST:event_btnLayoutClearActionPerformed
 
-    FloatingGui2 curGui = null;
+    FloatingTable floatingTable = null;
     Formatador formatter = null;
     CopyController copyController = null;
 
     private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
         // TODO add your handling code here:
-        if( curGui != null && JOptionPane.showConfirmDialog(this,
+        if( floatingTable != null && JOptionPane.showConfirmDialog(this,
                 "Isso vai apagar os dados da GUI anterior",
                 "Aviso",
                 JOptionPane.YES_NO_OPTION
         ) == 1){
             return;
         }
-        if(curGui == null){
-            curGui = new FloatingGui2();
+        if(floatingTable == null){
+            floatingTable = new FloatingTable();
         
             copyController = new CopyController();
             btnSwitchTitle.setVisible(true);
@@ -385,7 +409,7 @@ public class MainScreen extends javax.swing.JFrame {
             formatter = new Formatador();
         }
 
-        HashMap<Integer, Integer> config = new HashMap<>();
+
 
         if (tableLayout.getCellEditor() != null) {
             tableLayout.getCellEditor().stopCellEditing();
@@ -395,22 +419,13 @@ public class MainScreen extends javax.swing.JFrame {
             tableCopy.getCellEditor().stopCellEditing();
         }
 
-        for (int i = 0; i < row; i++){
-            config.put(
-                    Integer.valueOf(tableLayout.getValueAt(i, 1).toString()),
-                    Integer.valueOf(tableLayout.getValueAt(i, 0).toString())
-            );
-        }
 
-        curGui.setTable(tableContent, config);
-        copyController.setTable(curGui, formatter);
-
-
+        floatingTable.setTable(tableContent, tableLayout);
+        copyController.setTable(floatingTable, formatter);
 
         copyController.setConfig(copyTables);
 
     }//GEN-LAST:event_btnOpenActionPerformed
-
 
     Table tableContent;
 
@@ -425,12 +440,12 @@ public class MainScreen extends javax.swing.JFrame {
     boolean btnSwitchTitleBool = true;
     private void btnSwitchTitleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchTitleActionPerformed
         // TODO add your handling code here:
-        if(curGui == null){
+        if(floatingTable == null){
             return;
         }
-        curGui.dispose();
-        curGui.setUndecorated(btnSwitchTitleBool);
-        curGui.setVisible(true);
+        floatingTable.dispose();
+        floatingTable.setUndecorated(btnSwitchTitleBool);
+        floatingTable.setVisible(true);
         btnSwitchTitle.setText(!btnSwitchTitleBool? "Remover Titulo": "Mostrar Titulo");
         btnSwitchTitleBool = !btnSwitchTitleBool;
         
@@ -439,10 +454,10 @@ public class MainScreen extends javax.swing.JFrame {
     boolean btnSitchPauseBool = true;
     private void switchPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_switchPauseActionPerformed
         // TODO add your handling code here:
-        if(curGui == null){
+        if(floatingTable == null){
             return;
         }
-        curGui.setPause(btnSitchPauseBool);
+        floatingTable.setPause(btnSitchPauseBool);
         switchPause.setText(btnSitchPauseBool ? "Retomar": "Pausar");
 
         btnSitchPauseBool = !btnSitchPauseBool;
@@ -471,13 +486,27 @@ public class MainScreen extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnCopyClearActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void btnAbrirFormatadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirFormatadorActionPerformed
         // TODO add your handling code here:
         if(formatter == null){
             formatter = new Formatador();
             formatter.setVisible(true);
         }
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_btnAbrirFormatadorActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        floatingTable.toJsonObject(tableLayout);
+
+        if(copyController != null){
+
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_btnLoadActionPerformed
     int cpyRow = 0;
     private void btnCopyAddRowActionPerformed(java.awt.event.ActionEvent evt) {                                              
         // TODO add your handling code here:
@@ -523,23 +552,26 @@ public class MainScreen extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAbrirFormatador;
     private javax.swing.JButton btnAply;
     private javax.swing.JButton btnCopyAddRow;
     private javax.swing.JButton btnCopyClear;
     private javax.swing.JButton btnLayoutAddRow;
     private javax.swing.JButton btnLayoutClear;
+    private javax.swing.JButton btnLoad;
     private javax.swing.JButton btnOpen;
+    private javax.swing.JButton btnSave;
     private javax.swing.JButton btnSwitchTitle;
     private javax.swing.JComboBox<String> comboCopy;
     private javax.swing.JPanel copyPan;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;

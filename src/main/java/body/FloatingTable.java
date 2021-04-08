@@ -1,23 +1,24 @@
 package body;
 
 import head.*;
+import main.Main;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;
 
-public class FloatingGui2 extends JFrame implements BackgroundInputListener {
+public class FloatingTable extends JFrame implements BackgroundInputListener {
 
     public interface ChangeRowListener {
         void onRowChange(int newRow);
     }
-
-    Bot bot;
 
     static Color backgroundColor = new Color(255, 255, 255);
     static Color primaryColor = new Color(200, 200, 200);
@@ -35,19 +36,17 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
                 if (!isRunning)
                     return;
 
-
-
                 switch (e.getButton()) {
                     case 1:
                         new ColorFade(CommonCell.this, selectedColor, new Color(220, 220, 255), 1000);
                         leftClick();
                         break;
                     case 2:
-                        new ColorFade(CommonCell.this,null, Color.white, 1000);
+                        new ColorFade(CommonCell.this, null, Color.white, 1000);
                         middleClick();
                         break;
                     case 3:
-                        new ColorFade(CommonCell.this,Color.green, new Color(220, 255, 220), 1000);
+                        new ColorFade(CommonCell.this, Color.green, new Color(220, 255, 220), 1000);
                         rightClick();
                         break;
                     default:
@@ -70,7 +69,7 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
             lblTitle.setBackground(colorShift ? primaryColor : secondaryColor);
             lblTitle.setOpaque(true);
 
-            lblValue = new JLabel(String.format("ID{%d}",this.id));
+            lblValue = new JLabel(String.format("ID{%d}", this.id));
             lblValue.setBackground(backgroundColor);
             lblValue.setOpaque(true);
             lblTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -106,16 +105,16 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     }
 
-    public static class ColorFade{
+    public static class ColorFade {
         Color startColor;
         double pass;
-        double r,g,b;
-        double rs,gs,bs;
+        double r, g, b;
+        double rs, gs, bs;
         public CommonCell tarCell;
 
-        public ColorFade(CommonCell c, Color newColor,  Color target, int interval){
+        public ColorFade(CommonCell c, Color newColor, Color target, int interval) {
             tarCell = c;
-            if(newColor != null){
+            if (newColor != null) {
                 tarCell.lblValue.setBackground(newColor);
             }
             startColor = c.lblValue.getBackground();
@@ -124,7 +123,7 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
             b = target.getBlue() - startColor.getBlue();
 
             pass = (interval * 60.0d) / 1000.0;
-            if(pass < 3.0){
+            if (pass < 3.0) {
                 pass = 0;
                 return;
             }
@@ -140,37 +139,38 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
         }
 
 
-        public void tick(){
-            Color newCor = new Color((int)r,(int)g,(int)b);
+        public void tick() {
+            Color newCor = new Color((int) r, (int) g, (int) b);
             tarCell.lblValue.setBackground(newCor);
             r += rs;
             g += gs;
             b += bs;
             pass--;
-            if(r > 255 || r < 0){
+            if (r > 255 || r < 0) {
                 pass = 0;
             }
 
-            if(g > 255 || g < 0){
+            if (g > 255 || g < 0) {
                 pass = 0;
             }
 
-            if(b > 255 || b < 0){
+            if (b > 255 || b < 0) {
                 pass = 0;
             }
         }
 
 
     }
+
     static ArrayList<ColorFade> colorFades = new ArrayList<>();
 
-    static TimerTask colorFadeTick = new TimerTask(){
+    static TimerTask colorFadeTick = new TimerTask() {
         @Override
         public void run() {
 
-            for (int i = colorFades.size() - 1; i >= 0; i--){
+            for (int i = colorFades.size() - 1; i >= 0; i--) {
                 ColorFade c = colorFades.get(i);
-                if(c.pass > 1)
+                if (c.pass > 1)
                     c.tick();
                 else {
                     colorFades.remove(i);
@@ -182,8 +182,6 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     };
 
-
-
     boolean isRunning = false;
 
     public void setPause(boolean b) {
@@ -192,7 +190,7 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
         isRunning = !b;
     }
 
-    public FloatingGui2() {
+    public FloatingTable() {
         super();
         ClipBoard.setClipBoard("made by: boginni\nSource code: github/boginni/SeaTrabalhoChato", true);
 
@@ -223,14 +221,14 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
         BackgroundListener.addListener(this);
         setPause(false);
 
-        new Timer().schedule(colorFadeTick, 100l, (long) (1000.0/60.0));
+        new Timer().schedule(colorFadeTick, 100l, (long) (1000.0 / 60.0));
 
     }
 
     static ArrayList<Object> rowChangeListeners = new ArrayList<>();
 
     public static void addRowListener(Object target) {
-        if(target instanceof ChangeRowListener)
+        if (target instanceof ChangeRowListener)
             rowChangeListeners.add(target);
     }
 
@@ -240,25 +238,41 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     String values[][];
 
-    public void setTable(Table t, HashMap<Integer, Integer> tableConfig) {
+    private static HashMap<Integer, Integer> parseTableConfig(JTable tableLayout) {
+        HashMap<Integer, Integer> config = new HashMap<>();
+        if (tableLayout != null) {
+            int row = tableLayout.getRowCount();
+            for (int i = 0; i < row; i++) {
+                config.put(
+                        Integer.valueOf(tableLayout.getValueAt(i, 1).toString()),
+                        Integer.valueOf(tableLayout.getValueAt(i, 0).toString())
+                );
+
+            }
+        }
+
+        return config;
+    }
+
+    public void setTable(Table t, JTable table) {
         if (t == null) {
             return;
         }
 
         curTable = t;
 
-        if (tableConfig == null) {
-            this.tableConfig.clear();
-        } else {
-            this.tableConfig = tableConfig;
-        }
+
+        this.tableConfig = parseTableConfig(table);
+
+
         values = new String[curTable.getRowCount()][cells.size()];
         currentRow = 0;
         if (curTable != null)
             setRow(0);
     }
-    public int getRowCont(){
-        return (curTable != null )?curTable.getRowCount():0;
+
+    public int getRowCont() {
+        return (curTable != null) ? curTable.getRowCount() : 0;
     }
 
     private int currentRow = 0;
@@ -308,13 +322,13 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
 
     }
 
-    public CommonCell getCell(int cellID){
+    public CommonCell getCell(int cellID) {
         if (curTable == null)
             return null;
         try {
             return cells.get(cellID);
         } catch (Exception e) {
-            return  null;
+            return null;
         }
     }
 
@@ -353,4 +367,35 @@ public class FloatingGui2 extends JFrame implements BackgroundInputListener {
         }
     }
 
+    public static void toJsonObject(JTable table) {
+        String className = "FloatingTable";
+
+        JSONObject json = new JSONObject();
+        json.put("version", Main.VERSION);
+        json.put("type", className);
+        JSONArray tc = new JSONArray();
+
+        HashMap<Integer, Integer> config = parseTableConfig(table);
+        System.out.println(config);
+        for(Map.Entry<Integer, Integer> entry : config.entrySet()) {
+
+            int key = entry.getKey();
+            int value = entry.getValue();
+            tc.add(key);
+
+        }
+
+        json.put(JSON_tableConfig, tc);
+
+        try {
+            Files.write(Paths.get(className + ".json"), json.toJSONString().getBytes());
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+    }
+
+
+
+    private final static String JSON_tableConfig = "tableConfig";
 }

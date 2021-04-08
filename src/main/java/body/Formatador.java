@@ -220,7 +220,16 @@ public class Formatador extends javax.swing.JFrame {
     }
 
     static String extractPorta(String str){
-        Pattern pattern = Pattern.compile("\\b[porta]{1,5}((\\s+[1-9]{1,2})|[1-9]{1,2})", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\b[porta]{1,5}((\\s+[0-9]{1,2})|[1-9]{1,2})", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(str);
+        while (matcher.find()) {
+            return matcher.group();
+        }
+        return "";
+    }
+
+    static String extractCabo(String str){
+        Pattern pattern = Pattern.compile("([1-9])\\d+(?=[ m])", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(str);
         while (matcher.find()) {
             return matcher.group();
@@ -230,7 +239,7 @@ public class Formatador extends javax.swing.JFrame {
 
     private void btnFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFormatActionPerformed
         // TODO add your handling code here:
-        String coord = txtCoord.getText().isEmpty()?txtPasteArea.getText(): txtCoord.getText();
+        String coord = txtPasteArea.getText();
 
         String coords[] = extractCoord(coord);
 
@@ -242,16 +251,14 @@ public class Formatador extends javax.swing.JFrame {
            txtCoord.setText(coord);
         }
 
-
-        String CTO = txtCTO.getText().isEmpty()?txtPasteArea.getText():txtCTO.getText();
-        CTO = extractCTO(CTO);
+        String CTO = extractCTO(txtPasteArea.getText());
         txtCTO.setText(CTO.toUpperCase());
 
-        String port = txtPort.getText().isEmpty()?txtPasteArea.getText():txtPort.getText();
-        port = extractPorta(port);
+        String port = extractPorta(txtPasteArea.getText());
         txtPort.setText(port);
 
-
+        String cabo = extractCabo(txtPasteArea.getText());
+        txtCabo.setText(cabo);
 
         //String cabo = txtCabo.getText();
 

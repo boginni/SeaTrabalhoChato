@@ -22,7 +22,7 @@ public class CopyController extends javax.swing.JFrame implements
         CopyListener,
         BackgroundInputListener,
         ExportListener,
-        FloatingGui2.ChangeRowListener{
+        FloatingTable.ChangeRowListener{
 
     /**
      * Creates new form CopyController
@@ -30,7 +30,7 @@ public class CopyController extends javax.swing.JFrame implements
     public CopyController() {
         ClipBoard.addCopyListener(this);
         BackgroundListener.addListener(this);
-        FloatingGui2.addRowListener(this);
+        FloatingTable.addRowListener(this);
         Formatador.addExportListener(this);
         initComponents();
 
@@ -362,10 +362,10 @@ public class CopyController extends javax.swing.JFrame implements
 
     ArrayList<Integer> config[] = new ArrayList[4];
 
-    FloatingGui2 tableInterface;
+    FloatingTable tableInterface;
     Formatador formatter;
 
-    public void setTable(FloatingGui2 curGui, Formatador formatter) {
+    public void setTable(FloatingTable curGui, Formatador formatter) {
         tableInterface = curGui;
         progressGeral.setMaximum(tableInterface.getRowCont());
         this.formatter = formatter;
@@ -441,7 +441,7 @@ public class CopyController extends javax.swing.JFrame implements
     public void onExport(String[] vars, int[] targets) {
         for(int i = 0; i < vars.length; i++){
             tableInterface.pasteCell(targets[i], vars[i]);
-            new FloatingGui2.ColorFade(tableInterface.getCell(targets[i]), Color.red, new Color(255, 220, 220), 2500);
+            new FloatingTable.ColorFade(tableInterface.getCell(targets[i]), Color.red, new Color(255, 220, 220), 2500);
         }
         if(onPause){
             btnPauseActionPerformed(null);
