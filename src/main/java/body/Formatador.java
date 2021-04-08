@@ -200,11 +200,11 @@ public class Formatador extends javax.swing.JFrame {
     }
 
     static String[] extractCoord(String str) {
-        Pattern pattern = Pattern.compile("((-)+[0-9]+[.][0-9]+)");
+        Pattern pattern = Pattern.compile("((-)+[0-9]+[.|,][0-9]+)");
         Matcher matcher = pattern.matcher(str);
         String group = "";
         while (matcher.find()) {
-            group += matcher.group()+" ";
+            group += matcher.group().replaceAll(",",".")+" ";
         }
         System.out.println(group);
         return group.split(" ");
