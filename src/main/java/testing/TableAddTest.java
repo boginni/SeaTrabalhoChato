@@ -77,7 +77,9 @@ public class TableAddTest extends JPanel {
         });
     }
 
-    public static void main(String[] args) {
+   /*
+    
+     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
 
             @Override
@@ -92,4 +94,6 @@ public class TableAddTest extends JPanel {
             }
         });
     }
+    
+    */
 }
