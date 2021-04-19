@@ -31,7 +31,7 @@ public class MainFrame extends javax.swing.JFrame {
         
         inputTableHandlerPanel = new TableHandlerPanel();
         layoutTableHandlerPanel = new TableLayoutPanel();
-        inputTableHandlerPanel.layoutTableHanLayoutPanel = layoutTableHandlerPanel;
+        inputTableHandlerPanel.layoutTableHandlerLayoutPanel = layoutTableHandlerPanel;
         jTabbedPane2.add("TableHandler", inputTableHandlerPanel);
         jTabbedPane2.add("TableLayout", layoutTableHandlerPanel);
         jTabbedPane2.add("Extratores", formatters);
@@ -94,19 +94,6 @@ public class MainFrame extends javax.swing.JFrame {
     private void jTabbedPane2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPane2StateChanged
         // TODO add your handling code here:
 
-        switch(jTabbedPane2.getSelectedIndex()){
-            case 0:
-                
-                break;
-            case 1:
-                layoutTableHandlerPanel.updatePanHeaderButtons(inputTableHandlerPanel.tableModel);
-                break;
-            case 2:
-                break;
-                
-        }
-        
-        
     }//GEN-LAST:event_jTabbedPane2StateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

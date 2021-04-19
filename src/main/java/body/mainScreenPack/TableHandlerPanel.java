@@ -5,6 +5,7 @@
  */
 package body.mainScreenPack;
 
+import static body.mainScreenPack.TableHandlerPanel.colorFades;
 import head.ClipBoard;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -128,7 +129,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         initComponents();
         initTableModdel();
 
-        dummyTable();
+        //dummyTable();
         FloatingTable.addClickListener(this);
         UptadeButtons();
         tableMain.getTableHeader().setReorderingAllowed(false);
@@ -138,76 +139,12 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
     //<editor-fold desc="Floating Table">
     //<editor-fold desc="COLOR FADE">
-    public static class ColorFade {
-
-        Color startColor;
-        double pass;
-        double r, g, b;
-        double rs, gs, bs;
-        public StaticCell tarCell;
-        private Color tarColor;
-
-        public ColorFade(StaticCell c, Color newColor, Color target, int interval) {
-            tarColor = new Color(target.getRGB());
-            tarCell = c;
-            if (newColor != null) {
-                tarCell.lblValue.setBackground(newColor);
-            }
-            startColor = c.lblValue.getBackground();
-            r = target.getRed() - startColor.getRed();
-            g = target.getGreen() - startColor.getGreen();
-            b = target.getBlue() - startColor.getBlue();
-
-            pass = (interval * 60.0d) / 1000.0;
-            if (pass < 3.0) {
-                pass = 0;
-                return;
-            }
-
-            rs = r / pass;
-            gs = g / pass;
-            bs = b / pass;
-
-            r = startColor.getRed();
-            g = startColor.getGreen();
-            b = startColor.getBlue();
-            colorFades.add(this);
-        }
-
-        public void tick() {
-            Color newCor = new Color((int) r, (int) g, (int) b);
-            tarCell.lblValue.setBackground(newCor);
-            tarCell.lblHeader.setBackground(newCor.darker());
-            r += rs;
-            g += gs;
-            b += bs;
-            pass--;
-            if (r > 255 || r < 0) {
-                pass = 0;
-            }
-
-            if (g > 255 || g < 0) {
-                pass = 0;
-            }
-
-            if (b > 255 || b < 0) {
-                pass = 0;
-            }
-        }
-
-        private void terminate() {
-            tarCell.lblValue.setBackground(tarColor);
-            pass = 0;
-        }
-
-    }
-
+   
     static ArrayList<ColorFade> colorFades = new ArrayList<>();
 
     static TimerTask colorFadeTick = new TimerTask() {
         @Override
         public void run() {
-            System.out.println(colorFades.size());
             for (int i = colorFades.size() - 1; i >= 0 && !toTerminate; i--) {
                 ColorFade c = colorFades.get(i);
                 if (c != null && c.pass > 0) {
@@ -225,10 +162,10 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
     FloatingTable floatingTable;
     @Deprecated
-    public TableLayoutPanel layoutTableHanLayoutPanel;
+    public TableLayoutPanel layoutTableHandlerLayoutPanel;
 
     public void setTableLayout(TableLayoutPanel newLay) {
-        layoutTableHanLayoutPanel = newLay;
+        layoutTableHandlerLayoutPanel = newLay;
 
     }
 
@@ -236,12 +173,14 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         if (floatingTable != null) {
             floatingTable.dispatchEvent(new WindowEvent(floatingTable, WindowEvent.WINDOW_CLOSING));
         }
-        TableModel layout = layoutTableHanLayoutPanel.tableLayoutModel;
+        TableModel layout = layoutTableHandlerLayoutPanel.tableLayoutModel;
         TableModel original = tableModel;
 
         int maxCol = Integer.parseInt(spnColCont.getValue().toString());
-
-        LayoutManager grid = new GridLayout(0, maxCol, 5, 5);
+        int gapH = Integer.parseInt(spnHorizontalGap.getValue().toString());
+        int gapV = Integer.parseInt(spnVerticalGap.getValue().toString());        
+        
+        LayoutManager grid = new GridLayout(0, maxCol, gapH, gapV);
         floatingTable = new FloatingTable(original, layout, 0, grid);
         floatingTable.setBackground(Color.blue);
         floatingTable.repaint();
@@ -257,20 +196,15 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         ckbFixActionPerformed(null);
         ckbShowDecActionPerformed(null);
         UptadeButtons();
+        AllCellsColor(Color.BLACK, Color.white, 2000);
     }
     static boolean toTerminate = false;
     
-    boolean switchCor = false;
-    void AllCellsColor(Color StarColor, Color EndColor, int time) {
-
-        int r,g,b, change = 35;
-        r = 220 + (switchCor? change:0);
-        g = 220 + (switchCor? change:0);
-        b = 220 + (switchCor? change:0);
-        
+    void AllCellsColor(Color StarColor, Color endColor, int time) {
+        colorFades.clear();
         for (FloatingTableCell cell : floatingTable.getCells()) {
             if (cell instanceof StaticCell) {
-                new ColorFade((StaticCell) cell, StarColor, new Color(r, g, b), time);
+                new ColorFade((StaticCell) cell, StarColor, endColor, time);
             }
         }
 
@@ -303,27 +237,42 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
             switch(click){
                 case 1:
                     ClipBoard.setClipBoard(cell.value, true);
-                    new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
+                    if(cell instanceof StaticCell)
+                        new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
                     break;
-                    
                     
                 case 2:
                     
                     cell.setValue("");
-                    new ColorFade((StaticCell)cell, Color.red, new Color(240, 220, 220), 1500);
+                    if(cell instanceof StaticCell)
+                        new ColorFade((StaticCell)cell, Color.red, new Color(240, 220, 220), 1500);
                     break;
                 case 3:
                     
                     cell.setValue(ClipBoard.getClipBoard());
-                    new ColorFade((StaticCell)cell, Color.green, new Color(200, 240, 220), 1500);
+                    if(cell instanceof StaticCell)
+                        new ColorFade((StaticCell)cell, Color.green, new Color(200, 240, 220), 1500);
                     break;
             }
             cell.updateValue();
             return;
         }
-
-        if (cell instanceof StaticCell) {
+        
+        if(cell instanceof ButtonCell){
+            switch(click){
+                case FloatingTable.BTN_NEXT:
+                    btnNextActionPerformed(null);
+                    return;
+                case FloatingTable.BTN_LAST:
+                    btnLastActionPerformed(null);
+                    return;
+            };
+        }
+        
+        if (cell instanceof StaticCell && click == 1) {
             ClipBoard.setClipBoard(cell.value, true);
+            new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
+            return;
         }
 
     }
@@ -615,6 +564,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         jTabbedPane1.addTab("Tabela Flutuante", jPanel1);
 
         tableMain.setModel(tableModel);
+        tableMain.setColumnSelectionAllowed(true);
         tableMain.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         jScrollPane4.setViewportView(tableMain);
 
@@ -676,8 +626,10 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
         tableHeader = headers;
         tableValues = new Object[][]{};
-
+        TableModel oldHeader = tableModel;
         initTableModdel();
+        
+        layoutTableHandlerLayoutPanel.updateHeaders(tableModel);
 
     }//GEN-LAST:event_btnAplyHeaderActionPerformed
 
@@ -690,14 +642,29 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         // TODO add your handling code here:
         floatingTable.sumRow(-1);
         UptadeButtons();
-        AllCellsColor(new Color(255, 220, 220), Color.white, 1000);
+        
+        int r,g,b, change = 35;
+        r = 220 + (swapColor? change:0);
+        g = 220 + (swapColor? change:0);
+        b = 220 + (swapColor? change:0);
+        
+        AllCellsColor(new Color(255, 220, 220), new Color(r, g, b), 1000);
+        swapColor = !swapColor;
     }//GEN-LAST:event_btnLastActionPerformed
-
+    boolean swapColor = false;
     private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
         // TODO add your handling code here:
         floatingTable.sumRow(1);
         UptadeButtons();
-        AllCellsColor(new Color(230, 255, 255), Color.white, 1000);
+        
+        
+        int r,g,b, change = 35;
+        r = 220 + (swapColor? change:0);
+        g = 220 + (swapColor? change:0);
+        b = 220 + (swapColor? change:0);
+        
+        AllCellsColor(new Color(230, 255, 255), new Color(r, g, b), 1000);
+        swapColor = !swapColor;
     }//GEN-LAST:event_btnNextActionPerformed
 
     private void ckbShowDecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckbShowDecActionPerformed
@@ -741,3 +708,80 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
     //</editor-fold>
 }
+
+class ColorFade {
+
+        Color startColor;
+        double pass;
+        double r, g, b;
+        double rs, gs, bs;
+        public StaticCell tarCell;
+        private Color tarColor;
+
+        public ColorFade(StaticCell c, Color newColor, Color target, int interval) {
+            tarColor = new Color(target.getRGB());
+            tarCell = c;
+            if (newColor != null) {
+                tarCell.lblValue.setBackground(newColor);
+            }
+            startColor = c.lblValue.getBackground();
+            r = target.getRed() - startColor.getRed();
+            g = target.getGreen() - startColor.getGreen();
+            b = target.getBlue() - startColor.getBlue();
+
+            pass = (interval * 60.0d) / 1000.0;
+            if (pass < 3.0) {
+                pass = 0;
+                return;
+            }
+
+            rs = r / pass;
+            gs = g / pass;
+            bs = b / pass;
+
+            r = startColor.getRed();
+            g = startColor.getGreen();
+            b = startColor.getBlue();
+            
+            removeRunning();
+            
+            colorFades.add(this);
+        }
+        @Deprecated
+        void removeRunning(){
+            for(int i = 0; i< colorFades.size(); i++){
+                if(colorFades.get(i).tarCell == this.tarCell){
+                    colorFades.remove(i);
+                    return;
+                }
+            }
+        }
+
+        public void tick() {
+            Color newCor = new Color((int) r, (int) g, (int) b);
+            tarCell.lblValue.setBackground(newCor);
+            tarCell.lblHeader.setBackground(newCor.darker());
+            r += rs;
+            g += gs;
+            b += bs;
+            pass--;
+            if (r > 255 || r < 0) {
+                pass = 0;
+            }
+
+            if (g > 255 || g < 0) {
+                pass = 0;
+            }
+
+            if (b > 255 || b < 0) {
+                pass = 0;
+            }
+        }
+
+        private void terminate() {
+            tarCell.lblValue.setBackground(tarColor);
+            pass = 0;
+        }
+
+    }
+

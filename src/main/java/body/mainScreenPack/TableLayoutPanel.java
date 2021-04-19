@@ -38,6 +38,43 @@ public class TableLayoutPanel extends javax.swing.JPanel {
     public TableLayoutPanel() {
         initComponents();
         updateButtons();
+        
+        
+        panButtons.removeAll();
+        panButtons.setLayout(new GridBagLayout());
+        GridBagConstraints cons = new GridBagConstraints();
+        cons.fill = GridBagConstraints.HORIZONTAL;
+        cons.weighty = 0;
+        cons.weightx = 1;
+        cons.gridx = 0;
+        cons.gridy = 0;
+        cons.ipadx = 0;
+        cons.ipady = 0;
+        cons.anchor = GridBagConstraints.NORTH;
+        JButton dummy = new JButton("none");
+        int Width, Height, defaultBtnHeight = dummy.getPreferredSize().height;
+        Width = panButtons.getWidth() - 20;
+        Height = (2 + 1) * defaultBtnHeight;
+
+        panButtons.setPreferredSize(new Dimension(Width, Height));
+        Dimension btnDimension = new Dimension(Width * (2 / 3), defaultBtnHeight);
+        
+        JButton b;
+        b = new ControlerButton("NextRow", 0);
+        b.setPreferredSize(btnDimension);
+        panButtons.add(b, cons);
+        cons.gridy++;
+        
+        b = new ControlerButton("lastRow", 1);
+        b.setPreferredSize(btnDimension);
+        panButtons.add(b, cons);
+        cons.gridy++;
+        
+        
+        cons.weighty = 1;
+        panButtons.add(Box.createGlue(), cons);
+        scrollButtons.setViewportView(panButtons);
+        
     }
 
     /**
@@ -49,8 +86,9 @@ public class TableLayoutPanel extends javax.swing.JPanel {
     String[] tableHeader = {
         "ID", "Titulo", "Conteúdo", "ColumID"
     };
-    class MyTableModel extends DefaultTableModel{
-        
+
+    class MyTableModel extends DefaultTableModel {
+
         Class[] types = new Class[]{
             java.lang.Integer.class,
             java.lang.String.class,
@@ -77,11 +115,11 @@ public class TableLayoutPanel extends javax.swing.JPanel {
                 return false;
             }
         }
-        
-        public void setCellEditable(int rowIndex, int columnIndex, boolean editable){
-            try{
+
+        public void setCellEditable(int rowIndex, int columnIndex, boolean editable) {
+            try {
                 canEdit.get(rowIndex)[columnIndex] = editable;
-            } catch(Exception e){
+            } catch (Exception e) {
                 System.out.println(e);
             }
         }
@@ -112,8 +150,48 @@ public class TableLayoutPanel extends javax.swing.JPanel {
             Boolean b[] = new Boolean[]{false, true, true, false};
             canEdit.add(b);
         }
+
+        private void addRowNull() {
+            this.addRow(new Object[]{
+                tableLayoutModel.getRowCount(),
+                "",
+                "",
+                "N/A"});
+            Boolean b[] = new Boolean[]{false, true, true, false};
+            canEdit.add(b);
+        }
+
+        private void updateRow(int rowIndex, String header, int headerID) {
+            this.setValueAt(header, rowIndex, 1);
+            this.setValueAt("N/A", rowIndex, 2);
+            this.setValueAt(headerID, rowIndex, 3);
+
+            this.setCellEditable(rowIndex, 0, false);
+            this.setCellEditable(rowIndex, 2, false);
+            this.setCellEditable(rowIndex, 3, false);
+        }
+        
+        private void addButtonRow(int rowIndex, String btnName, int btnID) {
+            this.setValueAt(btnName, rowIndex, 1);
+            this.setValueAt(btnID, rowIndex, 2);
+            this.setValueAt("button", rowIndex, 3);
+
+            this.setCellEditable(rowIndex, 0, false);
+            this.setCellEditable(rowIndex, 2, false);
+            this.setCellEditable(rowIndex, 3, false);
+        }
+
+        private void invalidateRow(int rowIndex) {
+
+            Boolean b[] = new Boolean[]{false, true, true, false};
+            canEdit.set(rowIndex, b);
+            this.setValueAt("", rowIndex, 1);
+            this.setValueAt("", rowIndex, 2);
+            this.setValueAt("N/A", rowIndex, 3);
+
+        }
     }
-    
+
     MyTableModel tableLayoutModel = new MyTableModel(values, tableHeader);
 
     ListSelectionListener layoutTableSelectionListener = new ListSelectionListener() {
@@ -123,15 +201,10 @@ public class TableLayoutPanel extends javax.swing.JPanel {
         }
     };
 
-    void updateTable() {
-
-    }
-
     //</editor-fold>
     /**
      * <editor-fold desc="Header Buttons">
      */
-
     DefaultMutableTreeNode treeHeader;
 
     class HeaderButton extends JButton {
@@ -142,33 +215,44 @@ public class TableLayoutPanel extends javax.swing.JPanel {
             super(s);
             arrHeaderButtons.add(this);
             this.headerID = headerID;
-            
+
             addActionListener((ActionEvent e) -> {
-                int rowIndex = tableLayout.getSelectedRow() ;
-                if (rowIndex != -1) {
-                    
-                    tableLayoutModel.setValueAt(s, rowIndex, 1);
-                    tableLayoutModel.setValueAt("N/A", rowIndex, 2);
-                    tableLayoutModel.setValueAt(headerID, rowIndex, 3);
-                    
-                    tableLayoutModel.setCellEditable(rowIndex, 0, false);
-                    tableLayoutModel.setCellEditable(rowIndex, 2, false);
-                    tableLayoutModel.setCellEditable(rowIndex, 3, false);
-                    
-                    
-                    
+                int rowIndex = tableLayout.getSelectedRow();
+
+                if (rowIndex == -1) {
+                    tableLayoutModel.addRowNull();
+                    rowIndex = tableLayoutModel.getRowCount() - 1;
                 }
+                tableLayoutModel.updateRow(rowIndex, s, this.headerID);
 
             });
 
         }
 
     }
+    
+    class ControlerButton extends javax.swing.JButton{
+         public ControlerButton(String s, int btnID){
+             super(s);
+             
+             addActionListener((ActionEvent e) -> {
+                int rowIndex = tableLayout.getSelectedRow();
+
+                if (rowIndex == -1) {
+                    tableLayoutModel.addRowNull();
+                    rowIndex = tableLayoutModel.getRowCount() - 1;
+                }
+                tableLayoutModel.addButtonRow(rowIndex, s, btnID);
+
+            });
+         }
+    }
 
     ArrayList<HeaderButton> arrHeaderButtons = new ArrayList<>();
 
-    void updatePanHeaderButtons(TableModel tableModel) {
+    void updateHeaders(TableModel tableModel) {
 
+        // Buttons Pan
         panHeaders.removeAll();
         GridBagConstraints cons = new GridBagConstraints();
         cons.fill = GridBagConstraints.HORIZONTAL;
@@ -195,6 +279,24 @@ public class TableLayoutPanel extends javax.swing.JPanel {
         cons.weighty = 1;
         panHeaders.add(Box.createGlue(), cons);
         scrollHeaders.setViewportView(panHeaders);
+        
+        //Table Layout Moddel
+        for (int i = 0; i < tableLayoutModel.getRowCount(); i++) {
+            try {
+                
+                if (tableLayoutModel.getValueAt(i, 2).equals("N/A")) {
+                    int headId = Integer.parseInt(tableLayoutModel.getValueAt(i, 3).toString());
+                    if (tableModel.getColumnCount() > i) {
+                        tableLayoutModel.updateRow(i, tableModel.getColumnName(headId), headId);
+                    } else {
+                        tableLayoutModel.invalidateRow(i);
+                    }
+
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
 
     }
     //</editor-fold>
@@ -220,9 +322,11 @@ public class TableLayoutPanel extends javax.swing.JPanel {
         jButton5 = new javax.swing.JButton();
         layoutLoader = new javax.swing.JScrollPane();
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
+        tbpButtons = new javax.swing.JTabbedPane();
         scrollHeaders = new javax.swing.JScrollPane();
         panHeaders = new javax.swing.JPanel();
+        scrollButtons = new javax.swing.JScrollPane();
+        panButtons = new javax.swing.JPanel();
 
         setBorder(new javax.swing.border.MatteBorder(null));
 
@@ -309,7 +413,7 @@ public class TableLayoutPanel extends javax.swing.JPanel {
                 .addComponent(btnMoveDown)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 159, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 185, Short.MAX_VALUE)
                 .addComponent(jButton5)
                 .addContainerGap())
         );
@@ -339,35 +443,30 @@ public class TableLayoutPanel extends javax.swing.JPanel {
 
         layoutEditor.addTab("Layouts Salvos", layoutLoader);
 
-        jPanel2.setMinimumSize(new java.awt.Dimension(180, 360));
-        jPanel2.setName(""); // NOI18N
-        jPanel2.setPreferredSize(new java.awt.Dimension(180, 360));
-
         scrollHeaders.setMinimumSize(new java.awt.Dimension(200, 360));
 
-        panHeaders.setBorder(javax.swing.BorderFactory.createTitledBorder("Headers"));
         panHeaders.setMaximumSize(new java.awt.Dimension(140, 32767));
         panHeaders.setMinimumSize(new java.awt.Dimension(140, 360));
         panHeaders.setPreferredSize(new java.awt.Dimension(140, 200));
         panHeaders.setLayout(new java.awt.GridBagLayout());
         scrollHeaders.setViewportView(panHeaders);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(scrollHeaders, javax.swing.GroupLayout.PREFERRED_SIZE, 160, Short.MAX_VALUE)
-                .addContainerGap())
+        tbpButtons.addTab("Headers", scrollHeaders);
+
+        javax.swing.GroupLayout panButtonsLayout = new javax.swing.GroupLayout(panButtons);
+        panButtons.setLayout(panButtonsLayout);
+        panButtonsLayout.setHorizontalGroup(
+            panButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 198, Short.MAX_VALUE)
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(scrollHeaders, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+        panButtonsLayout.setVerticalGroup(
+            panButtonsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 358, Short.MAX_VALUE)
         );
+
+        scrollButtons.setViewportView(panButtons);
+
+        tbpButtons.addTab("Buttons", scrollButtons);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -375,8 +474,8 @@ public class TableLayoutPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tbpButtons)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(layoutEditor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -387,9 +486,9 @@ public class TableLayoutPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(layoutEditor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE))
+                    .addComponent(tbpButtons))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -416,12 +515,7 @@ public class TableLayoutPanel extends javax.swing.JPanel {
      */
     private void btnNewLineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewLineActionPerformed
         // TODO add your handling code here:
-        tableLayoutModel.addRow(new Object[]{
-            tableLayoutModel.getRowCount(),
-            "",
-            "",
-            "N/A"
-        });
+        tableLayoutModel.addRowNull();
         updateButtons();
     }//GEN-LAST:event_btnNewLineActionPerformed
 
@@ -471,15 +565,17 @@ public class TableLayoutPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnRemoveRow;
     private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JPanel layoutContructor;
     private javax.swing.JTabbedPane layoutEditor;
     private javax.swing.JScrollPane layoutLoader;
+    private javax.swing.JPanel panButtons;
     private javax.swing.JPanel panHeaders;
+    private javax.swing.JScrollPane scrollButtons;
     private javax.swing.JScrollPane scrollHeaders;
     private javax.swing.JTable tableLayout;
+    private javax.swing.JTabbedPane tbpButtons;
     // End of variables declaration//GEN-END:variables
 
 }
