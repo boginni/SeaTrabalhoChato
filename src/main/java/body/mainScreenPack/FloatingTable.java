@@ -5,16 +5,13 @@
  */
 package body.mainScreenPack;
 
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
+import body.mainScreenPack.Cells.*;
+
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.table.TableModel;
 
 /**
@@ -25,7 +22,7 @@ public class FloatingTable extends JFrame {
 
     interface onClickListener {
 
-        void mouseClick(FloatingTableCell cell, int click);
+        void mouseClick(FloatingTableCell cell, int click, boolean isPressed);
 
     }
     private static ArrayList<onClickListener> listeners = new ArrayList<>();
@@ -34,9 +31,10 @@ public class FloatingTable extends JFrame {
         listeners.add(object);
     }
 
-    public static void mouseClick(FloatingTableCell cell, int click) {
+    public static void mouseClick(FloatingTableCell cell, int click, boolean isPressed) {
+        //System.out.println(cell.getValue()+" "+isPressed);
         for (onClickListener curListener : listeners) {
-            curListener.mouseClick(cell, click);
+            curListener.mouseClick(cell, click, isPressed);
         }
     }
 
@@ -51,20 +49,17 @@ public class FloatingTable extends JFrame {
         }
 
         @Override
-        void updateValue() {
+        public void updateValue() {
             setValue((String) getCurrentLayer().getValueAt(curRow, HeaderID));
         }
 
         @Override
-        void setValue(String v) {
+        public void setValue(String v) {
             super.setValue(v); //To change body of generated methods, choose Tools | Templates.
             getCurrentLayer().setValueAt(v, curRow, HeaderID);
         }
 
     }
-
-    public static final int BTN_NEXT = 0,
-            BTN_LAST = 1;
 
     public FloatingTable(TableModel originalTable, TableModel layout, int startRow, LayoutManager gridLay) {
         super();
@@ -88,11 +83,11 @@ public class FloatingTable extends JFrame {
                 MouseAdapter m = new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                        FloatingTable.mouseClick(curCell, Integer.parseInt(value));
+                        FloatingTable.mouseClick(curCell, Integer.parseInt(value), false);
                     }
                 };
                 ((ButtonCell) curCell).setMouse(m);
-                
+                btnCells.add((ButtonCell) curCell);
             } else {
                 int hID = Integer.parseInt(columID);
                 curCell = new HeaderTableCell(header, "===========", hID);
@@ -137,8 +132,8 @@ public class FloatingTable extends JFrame {
         return curRow;
     }
 
-    public ArrayList<FloatingTableCell> getCells() {
-        return cells;
+    public FloatingTableCell[] getCells() {
+        return cells.toArray(new FloatingTableCell[]{});
     }
 
     public TableModel getCurrentLayer() {
@@ -155,6 +150,7 @@ public class FloatingTable extends JFrame {
     }
 
     ArrayList<FloatingTableCell> cells = new ArrayList<>();
+    ArrayList<ButtonCell> btnCells = new ArrayList<>();
 
     public void setOriginalTable(TableModel t) {
         originalTable = t;
@@ -167,114 +163,5 @@ public class FloatingTable extends JFrame {
 
 }
 
-class FloatingTableLayout {
 
-    int maxCol;
-}
 
-abstract class FloatingTableCell extends JPanel {
-
-    String value;
-
-    //int id;
-    public FloatingTableCell(String value) {
-        this.value = value;
-    }
-
-    abstract void updateValue();
-
-    void setValue(String v) {
-        value = v;
-    }
-}
-
-class ButtonCell extends FloatingTableCell {
-
-    JButton btn;
-
-    public ButtonCell(String value, MouseAdapter mouseEvent) {
-        
-        super(value);
-        this.setLayout(new GridLayout());
-        
-        btn = new JButton(value);
-        if (mouseEvent != null) {
-            btn.addMouseListener(mouseEvent);
-        }
-        this.add(btn);
-        setMinimumSize(new Dimension(30, 20));
-    }
-
-    @Override
-    void updateValue() {
-
-    }
-
-    void setMouse(MouseAdapter mouseEvent) {
-        btn.addMouseListener(mouseEvent);
-    }
-
-}
-
-class ClickListenerCell extends FloatingTableCell {
-
-    MouseAdapter standartClick = new MouseAdapter() {
-        @Override
-        public void mousePressed(MouseEvent e) {
-            click(e.getButton());
-        }
-
-    };
-
-    void click(int click) {
-        FloatingTable.mouseClick(this, click);
-    }
-
-    public ClickListenerCell(String value) {
-        super(value);
-        addMouseListener(standartClick);
-    }
-
-    @Override
-    void updateValue() {
-
-    }
-
-}
-
-class StaticCell extends ClickListenerCell {
-
-    String Header;
-
-    JLabel lblHeader;
-    JLabel lblValue;
-
-    public StaticCell(String header, String value) {
-        super(value);
-        this.Header = header;
-        StaticCell.this.setLayout(new GridLayout(2, 1));
-
-        lblHeader = new JLabel(header);
-        lblValue = new JLabel(value);
-
-        add(lblHeader);
-        add(lblValue);
-
-        setMinimumSize(new Dimension(30, 20));
-        lblHeader.setBackground(getBackground().darker());
-        lblHeader.setOpaque(true);
-        lblValue.setOpaque(true);
-    }
-
-    @Override
-    void updateValue() {
-
-    }
-
-    @Override
-    void setValue(String v) {
-        super.setValue(v); //To change body of generated methods, choose Tools | Templates.
-        lblValue.setText(v);
-    }
-
-}

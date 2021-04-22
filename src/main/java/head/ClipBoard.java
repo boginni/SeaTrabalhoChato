@@ -96,6 +96,51 @@ public class ClipBoard {
 
         onChangeCopy = false;
     }
-    
+
+    public static final String
+            FORMAT_ENTER = "</n>",
+            FORMAT_TAB = "</t>";
+    public static String getClipBoardFormated() {
+        try {
+            String s = Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor).toString();
+            s.replaceAll("\n", FORMAT_ENTER);
+            s.replaceAll("\t", FORMAT_TAB);
+            System.out.println(s);
+            return s;
+        } catch (Exception e) {
+
+        }
+
+
+        return "";
+    }
+
+
+    public static void setClipBoardFormatted(String str, boolean naturalCopy){
+        onChangeCopy = true;
+        System.out.println(System.currentTimeMillis());
+        System.out.println("\nBefore: "+str);
+        str = str.replaceAll(FORMAT_ENTER, "\n");
+        str = str.replaceAll(FORMAT_TAB, "\t");
+        str = str.replaceAll(" (?=</->)", "");
+        str = str.replaceAll("</->", "");
+
+        System.out.println("after: "+str);
+        Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+        StringSelection testData;
+        testData = new StringSelection(str);
+        try {
+            c.setContents(testData, testData);
+        } catch (Exception e){
+
+        }
+
+        if(!naturalCopy){
+            oldClip = str;
+        }
+
+        onChangeCopy = false;
+    }
+
     
 }

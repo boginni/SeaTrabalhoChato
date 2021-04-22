@@ -5,7 +5,8 @@
  */
 package body.mainScreenPack;
 
-import static body.mainScreenPack.TableHandlerPanel.colorFades;
+import body.mainScreenPack.Cells.*;
+import body.mainScreenPack.Ults.ColorFade;
 import head.ClipBoard;
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -16,10 +17,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JTable;
-import javax.swing.SpinnerModel;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
+import static body.mainScreenPack.Ults.ColorFade.AllCellsColor;
 
 /**
  *
@@ -28,6 +29,7 @@ import javax.swing.table.TableModel;
 public class TableHandlerPanel extends javax.swing.JPanel implements body.mainScreenPack.FloatingTable.onClickListener {
 
     //<editor-fold desc="Table Change Listener">
+    /*
     interface TableChangeListener {
 
         void onHeaderChange(TableChangeEvent e);
@@ -67,7 +69,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         if (target instanceof TableChangeListener) {
             changeTargets.add(target);
         }
-    }
+    } */
     //</editor-fold>
 
     //<editor-fold desc="Table Moddel">
@@ -100,7 +102,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
     }
 
     public TableModel tableModel = new MyTableModel(tableValues, tableHeader);
-    public TableModel layer1;
+
 
     void initTableModdel() {
         tableModel = new MyTableModel(tableValues, tableHeader);
@@ -134,30 +136,13 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         UptadeButtons();
         tableMain.getTableHeader().setReorderingAllowed(false);
 
-        new Timer().schedule(colorFadeTick, 100l, (long) (1000.0 / 60.0));
+        new Timer().schedule(ColorFade.colorFadeTick, 100l, (long) (1000.0 / 60.0));
     }
 
     //<editor-fold desc="Floating Table">
     //<editor-fold desc="COLOR FADE">
    
-    static ArrayList<ColorFade> colorFades = new ArrayList<>();
 
-    static TimerTask colorFadeTick = new TimerTask() {
-        @Override
-        public void run() {
-            for (int i = colorFades.size() - 1; i >= 0 && !toTerminate; i--) {
-                ColorFade c = colorFades.get(i);
-                if (c != null && c.pass > 0) {
-                    c.tick();
-                } else {
-                    colorFades.remove(i);
-                }
-
-            }
-
-        }
-
-    };
     //</editor-fold>
 
     FloatingTable floatingTable;
@@ -166,7 +151,6 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
     public void setTableLayout(TableLayoutPanel newLay) {
         layoutTableHandlerLayoutPanel = newLay;
-
     }
 
     public void initTable() {
@@ -178,8 +162,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
         int maxCol = Integer.parseInt(spnColCont.getValue().toString());
         int gapH = Integer.parseInt(spnHorizontalGap.getValue().toString());
-        int gapV = Integer.parseInt(spnVerticalGap.getValue().toString());        
-        
+        int gapV = Integer.parseInt(spnVerticalGap.getValue().toString());
         LayoutManager grid = new GridLayout(0, maxCol, gapH, gapV);
         floatingTable = new FloatingTable(original, layout, 0, grid);
         floatingTable.setBackground(Color.blue);
@@ -196,18 +179,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         ckbFixActionPerformed(null);
         ckbShowDecActionPerformed(null);
         UptadeButtons();
-        AllCellsColor(Color.BLACK, Color.white, 2000);
-    }
-    static boolean toTerminate = false;
-    
-    void AllCellsColor(Color StarColor, Color endColor, int time) {
-        colorFades.clear();
-        for (FloatingTableCell cell : floatingTable.getCells()) {
-            if (cell instanceof StaticCell) {
-                new ColorFade((StaticCell) cell, StarColor, endColor, time);
-            }
-        }
-
+        AllCellsColor(floatingTable.getCells(), Color.BLACK, Color.white, 2000);
     }
 
     void UptadeButtons() {
@@ -230,47 +202,59 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
     }
 
     @Override
-    public void mouseClick(FloatingTableCell cell, int click) {
-
+    public void mouseClick(FloatingTableCell cell, int click,boolean isPressed) {
+        String concat = " ";
+        if(cell == null){
+            return;
+        }
         if (cell instanceof FloatingTable.HeaderTableCell) {
-            cell = (FloatingTable.HeaderTableCell) cell;
+
             switch(click){
+
                 case 1:
-                    ClipBoard.setClipBoard(cell.value, true);
-                    if(cell instanceof StaticCell)
-                        new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
+                    String newVar = cell.getValue();
+
+                    if(isPressed){
+                        newVar = String.format("%s%s%s", ClipBoard.getClipBoard(), concat, newVar);
+                    }
+
+                    ClipBoard.setClipBoardFormatted(newVar, true);
+                    new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
                     break;
-                    
                 case 2:
                     
                     cell.setValue("");
-                    if(cell instanceof StaticCell)
-                        new ColorFade((StaticCell)cell, Color.red, new Color(240, 220, 220), 1500);
+                    new ColorFade((StaticCell)cell, Color.red, new Color(240, 220, 220), 1500);
                     break;
                 case 3:
                     
-                    cell.setValue(ClipBoard.getClipBoard());
-                    if(cell instanceof StaticCell)
-                        new ColorFade((StaticCell)cell, Color.green, new Color(200, 240, 220), 1500);
+                    cell.setValue(ClipBoard.getClipBoardFormated());
+                    new ColorFade((StaticCell)cell, Color.green, new Color(200, 240, 220), 1500);
                     break;
             }
+
             cell.updateValue();
             return;
         }
         
         if(cell instanceof ButtonCell){
             switch(click){
-                case FloatingTable.BTN_NEXT:
+                case ButtonCell.BTN_NEXT:
                     btnNextActionPerformed(null);
                     return;
-                case FloatingTable.BTN_LAST:
+                case ButtonCell.BTN_LAST:
                     btnLastActionPerformed(null);
                     return;
             };
         }
         
         if (cell instanceof StaticCell && click == 1) {
-            ClipBoard.setClipBoard(cell.value, true);
+            String newVar = cell.getValue();
+            if(isPressed){
+                newVar = String.format("%s%s%s", ClipBoard.getClipBoard(), concat, newVar);
+            }
+
+            ClipBoard.setClipBoardFormatted(newVar, true);
             new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
             return;
         }
@@ -279,33 +263,33 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
     //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Dummy Table">
-    private void dummyTable() {
-        txtHeaders.setText("Fid	Código	Nome	Telefone	Documento	Contrato	Ponto de Acesso	Endereço	X (Longitude)	Y (Latitude)	Bairro	CEP	E-mail	Número Porta	Status	Dedicado	Tipo	Splitter/Porta	Tipo de Tecnologia	Comp. Fibra (m)	Sinal (dBm)	Plano	Data de Ativação do Plano	Data de Cancelamento do Plano	Vendedor	Estação	VLAN	OLT	Porta OLT	Área OLT	Código ONU	MAC ONU	Contido em Mancha de Atendimento	Proveniente de integração");
-        txtValues.setText("1761594	45926	Eraldo Rodrigo Travassos Chagas	(91) 98105-0502	00607212276	44443	CTO: CTO_PA_SMG_PPS_B14c4	R. Agostinho Siqueira - São Miguel do Guamá, PA - BR, 68660-000	-47,4766023357945	-1,6126234265432	PERPETUO SOCORRO	68660000	eraldotec1@gmail.com	494	Inativo	Não	Residencial	1x16/6		100		PLANO 100 MBPS	17/2/2021		WALFREDO FERREIRA MACEDO								Não	Não			\n"
-                + "1761618	45934	Mizael Jose Oliveira De Lima	(91) 98957-3979	02731256214	44454	CTO: CTO_PA_SMG_PPS_A8d1	R. RAIMUNDO CARVALHO 	-47,4791261067796	-1,6038967161848	PADRE ANGELO MARIA	68660000	mizael.lima22@outlook.com	137	Inativo	Não	Residencial			30		PLANO 200 MBPS	17/2/2021		WALFREDO FERREIRA MACEDO								Não	Não			\n"
-                + "1761682		Cliente Test				CTO: CTO_PA_SMG_PPS_B12a2	R. Agostinho Siqueira - São Miguel do Guamá, PA - BR, 68660-000	-47,4747277081166	-1,6110627600638		68660000		717	Inativo	Não	Residencial																Não	Não			\n"
-                + "1761452	45929	Divaldo Carvalho Pinto	(91) 99206-7088	24941689291	44447	CTO: CTO_PA_SMG_B4b4	R. Pio XII, 123, São Miguel do Guamá - PA, 68660-000, Brasil	-47,4767361820046	-1,6218272422184	Patauateua	68660000		123	Inativo	Não	Residencial	1x16/5							JOSE FERNANDO DA SILVA TRINDADE								Não	Não			\n"
-                + "1761448	45919	Joelson Da Silva Barbosa	(91985768184	81292872268	44436	CTO: CTO_PA_SMG_B3b3	R. Liberdade - São Miguel do Guamá, PA - BR, 68660-000	-47,4783347055229	-1,6243345943440	PATAUATEUA	68660000	berna.vieras@gmail.com	593	Inativo	Não	Residencial			20		PLANO 200 MBPS	17/2/2021		RODRIGO BRASIL DE SOUSA								Não	Não			\n"
-                + "1761322	45898	Josiane Oliveira Dos Santos	(91) 99350-5497	02374785289	44414	CTO: CTO_PA_SMG_B5c4	R. Cipriano Mendes Rodrigues , 57 , São Miguel do Guamá - PA, 68660-000, Brasil	-47,4723154068036	-1,6194957877775	Patauateua	68660000	josyolliver03@gmail.com	57	Inativo	Não	Residencial	1x16/3		100		PLANO 100 MBPS	17/2/2021		JOSE FERNANDO DA SILVA TRINDADE								Não	Não			\n"
-                + "1761621		Jose Odivaldo Do Nascimento Oliveira	(91) 98032-5058	48769312249		CTO: CTO_PA_SMG_A2c4	Passagem  São Francisco , 217 , São Miguel do Guamá - PA, 68660-000,	-47,4829161108830	-1,6271840629258	Vila sorriso	68660000		217	Ativo	Não	Residencial	1x16/2	Fibra Óptica						JOSE FERNANDO DA SILVA TRINDADE	POP SÃO MIGUEL		L16	2				Não	Não			\n"
-                + "1761623	45954	Jose Odivaldo Do Nascimento Oliveira	(91) 98032-5058	48769312249	44471		Passagem  São Francisco , 217 , São Miguel do Guamá - PA, 68660-000,	-47,4829161108830	-1,6271840629258	Vila sorriso	68660000		217	Atendimento Reservado	Não	Residencial		Fibra Óptica						JOSE FERNANDO DA SILVA TRINDADE								Não	Não			\n"
-                + "1767728	46531	Maria Gorete Carvalho Dos Reis	(91) 9829-10496	13286404268		CTO: CTO_PA_SMG_PPS_B14a2	Tv. São Jorge - São Miguel do Guamá, PA - BR, 68660-000	-47,4768223644178	-1,6120288913940	Perpetuo Socorro	68660000		418	Ativo	Não	Residencial	1x16/3	Fibra Óptica							POP P. SOCORRO		L-15	14				Não	Não			\n"
-                + "1767731	45764	Maria De Nazare Pereira Da Silva	(91) 98224-3659	80674330200		CTO: CTO_PA_SMG_A8b3	R. Bernardo Carvalho - São Miguel do Guamá, PA - BR, 68660-000	-47,4857143411047	-1,6186565943063	OLHO D'ÁGUA	68660000		300	Atendimento Reservado	Não	Residencial	1x16/1	Fibra Óptica	60		PLANO 200 MBPS	18/2/2021										Não	Não			\n"
-                + "1767742	46281	Ana Gabriela Brito Da Silva	(91) 98038-9807	02082220222		CTO: CTO_PA_SMG_A5c4	R. Timborana - São Miguel do Guamá, PA - BR, 68660-000	-47,4905992944772	-1,6214970150313	CASTANHEIRA	68660000	gabriellabs93@gmail.com	S/N	Inativo	Não	Residencial	1x16/4		130		PLANO 200 MBPS	22/2/2021										Não	Não			\n"
-                + "1805474	46729	Railson De Sousa Gama	(91) 98037-6330	09027449252		CTO: CTO_PA_SMG_B13a2	Tv. São Pedro - São Miguel do Guamá, PA - BR, 68660-000	-47,4724804110454	-1,6168423188588	Piçarreira	68660000		15	Inativo	Não	Residencial	1x8/2															Não	Não			\n"
-                + "1808786	47119	Adriana De Oliveira Teixeira	(91) 99154-9558	98172077220	45641	CTO: CTO_PA_SMG_PPS_B2a2	R. Gonçalo Braga, 868, Perpétuo Socorro, São Miguel do Guamá - PA, 68660-000, Brasil	-47,4742402441489	-1,6019981700938	Perpétuo Socorro	68660000		868	Ativo	Não	Residencial	1x8/1	Fibra Óptica						RODRIGO BRASIL DE SOUSA	POP P. SOCORRO		L-15	2				Não	Não			\n"
-                + "1808902	47140	Francilene De Castro Lima	(91) 99616-1076	83044086272	45664	CTO: CTO_PA_SMG_PPS_B5c1	R. SEBASTIÃO SOARES	-47,4712937055226	-1,5996216376724	JARDIM AMERICA	68660000	castrofrancy629@gmail.com	4	Ativo	Não	Residencial	1x8/7	Fibra Óptica	70		PLANO 200 MBPS	5/3/2021		RENATO PANTOJA	POP P. SOCORRO		L-15	5				Não	Não			\n"
-                + "1811950	47498	Layse De Nazare Gonzaga Braga	(91) 99986-0676	00808578251		CTO: CTO_PA_SMG_B14b3	R. Sete de janeiro - São Miguel do Guamá, PA - BR, 68660-000	-47,4778016355817	-1,6165973622829	Perpetuo Socorro	68660000		255	Inativo	Não	Residencial	1x16/7															Não	Não			\n"
-                + "1812143	47359	Josenilton Pereira Reis	(91) 98890-8527	09225439253	45865	CTO: CTO_PA_SMG_PPS_A2c4	Tv. Antonio piaui, 804-900, São Miguel do Guamá - PA, 68660-000, Brasil	-47,4791222537289	-1,6017138828609	Padre Ângelo	68660000		623	Ativo	Não	Residencial	1x16/4	Fibra Óptica						DAVID DE SOUSA MARQUES	POP P. SOCORRO		L-16	2				Não	Não			\n"
-                + "1811915		Layse De Nazaré Gonzaga Braga	(91) 99986-0676	008.085.783-51		CTO: CTO_PA_SMG_B14b3	Av. Magalhães Barata, 255, São Miguel do Guamá - PA, 68660-000, Brasil	-47,4777911242583	-1,6165590126151	Perpétuo socorro	68660000		255	Inativo	Não	Residencial	1x16/6							JAILSON DANIEL ALMEIDA								Não	Não			\n"
-                + "1812073	130	Policia Civil Do Estado Do Para	 91 98516-6998		46030	CTO: CTO_PA_SMG_A8c4	Tv. Jorge Carneiro - São Miguel do Guamá, PA - BR, 68660-000	-47,4845996588956	-1,6185052320276		68660000		189	Aguardando Ativação	Não	Residencial	1x16/2	Fibra Óptica			PLANO 200 MBPS	10/3/2021										Não	Não			\n"
-                + "1812075	47521	Maria Do Socorro Do Carmo Batista	(91) 98201-4556			CTO: CTO_PA_SMG_A6c4	R. Cantidio Nunes - São Miguel do Guamá, PA - BR, 68660-000	-47,4827626822083	-1,6201694206761	São Manoel	68660000		4	Inativo	Não	Residencial	1x16/2															Não	Não			\n"
-                + "1812193	47529	Ivin Stefany Oliveira Rodrigues	(91) 98024-8068	04129894250		CTO: CTO_PA_SMG_B7a5	R. São Pedro - São Miguel do Guamá, PA - BR, 68660-000	-47,4648945889553	-1,6145769565676	Umarizal	68660000		S/N	Aguardando Ativação	Não	Residencial	1x8/1	Fibra Óptica														Não	Não			\n"
-                + "1812011	47509	Danielly Santos De Jesus	(91) 99832-5797	04808404230		CTO: CTO_PA_SMG_PPS_B12c1	R. Agostinho Siqueira - São Miguel do Guamá, PA - BR, 68660-000	-47,4748217288360	-1,6120106377050	Perpetuo Socorro	68660000		668	Ativo	Não	Residencial	1x16/1	Fibra Óptica							POP P. SOCORRO		L-15	12				Não	Não			\n"
-                + "1812210	47559	Dario Augusto De Souza	(91) 99169-0559	01878492268	46073	CTO: CTO_PA_SMG_B1a2	R. Pio XII, 569, plPerpétuo Socorro São Miguel do Guamá - PA, 68660-000, Brasil	-47,4785238543018	-1,6170986611391	Perpétuo Socorro	68660000		569	Atendimento Reservado	Não	Residencial	1x16/1	Fibra Óptica						RODRIGO BRASIL DE SOUSA								Não	Não			\n"
-                + "1835453	48790	Clayton Dias De Paiva	(91) 98101-7455	74461168204	47319	CTO: CTO_PA_SMG_B15a2	R. NEY PEIXOTO - São Miguel do Guamá, PA - BR, 68660-000	-47,4797039766867	-1,6158862320033	PERPETUO SOCORRO	68660000	clayton_dias1984@hotmail.com	236	Aguardando Ativação	Não	Residencial	1x16/1	Fibra Óptica	90		PLANO 100 MBPS	29/3/2021										Não	Não			\n"
-                + "1835639	48806	Eriton Januario De Freitas	(91) 98170-3530		47338	CTO: CTO_PA_SMG_A8c1	R. Jorge Carneiro- São Miguel do Guamá, PA - BR, 68660-000	-47,4881463577813	-1,6183687332612	Vila Nova	68660000	cristianealvesdosreis@gmail.com	178	Atendimento Reservado	Não	Residencial	1x16/4	Fibra Óptica			PLANO 200 MBPS	1/4/2021										Não	Não			\n"
-                + "1835669	48817	Benedito Reis Dos Santos Costa	(91) 99120-7937		47345	CTO: CTO_PA_SMG_PPS_A13c1	Estrada São Miguel - São Miguel do Guamá, PA - BR, 68660-000	-47,4901753644182	-1,6141003188553	Vila França	68660000		2	Aguardando Ativação	Não	Residencial	1x16/5	Fibra Óptica														Não	Não			");
+    public void dummyTable() {
+        txtHeaders.setText("Fid	Cï¿½digo	Nome	Telefone	Documento	Contrato	Ponto de Acesso	Endereï¿½o	X (Longitude)	Y (Latitude)	Bairro	CEP	E-mail	Nï¿½mero Porta	Status	Dedicado	Tipo	Splitter/Porta	Tipo de Tecnologia	Comp. Fibra (m)	Sinal (dBm)	Plano	Data de Ativaï¿½ï¿½o do Plano	Data de Cancelamento do Plano	Vendedor	Estaï¿½ï¿½o	VLAN	OLT	Porta OLT	ï¿½rea OLT	Cï¿½digo ONU	MAC ONU	Contido em Mancha de Atendimento	Proveniente de integraï¿½ï¿½o");
+        txtValues.setText("1761594	45926	Eraldo Rodrigo Travassos Chagas	(91) 98105-0502	00607212276	44443	CTO: CTO_PA_SMG_PPS_B14c4	R. Agostinho Siqueira - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4766023357945	-1,6126234265432	PERPETUO SOCORRO	68660000	eraldotec1@gmail.com	494	Inativo	Nï¿½o	Residencial	1x16/6		100		PLANO 100 MBPS	17/2/2021		WALFREDO FERREIRA MACEDO								Nï¿½o	Nï¿½o			\n"
+                + "1761618	45934	Mizael Jose Oliveira De Lima	(91) 98957-3979	02731256214	44454	CTO: CTO_PA_SMG_PPS_A8d1	R. RAIMUNDO CARVALHO 	-47,4791261067796	-1,6038967161848	PADRE ANGELO MARIA	68660000	mizael.lima22@outlook.com	137	Inativo	Nï¿½o	Residencial			30		PLANO 200 MBPS	17/2/2021		WALFREDO FERREIRA MACEDO								Nï¿½o	Nï¿½o			\n"
+                + "1761682		Cliente Test				CTO: CTO_PA_SMG_PPS_B12a2	R. Agostinho Siqueira - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4747277081166	-1,6110627600638		68660000		717	Inativo	Nï¿½o	Residencial																Nï¿½o	Nï¿½o			\n"
+                + "1761452	45929	Divaldo Carvalho Pinto	(91) 99206-7088	24941689291	44447	CTO: CTO_PA_SMG_B4b4	R. Pio XII, 123, Sï¿½o Miguel do Guamï¿½ - PA, 68660-000, Brasil	-47,4767361820046	-1,6218272422184	Patauateua	68660000		123	Inativo	Nï¿½o	Residencial	1x16/5							JOSE FERNANDO DA SILVA TRINDADE								Nï¿½o	Nï¿½o			\n"
+                + "1761448	45919	Joelson Da Silva Barbosa	(91985768184	81292872268	44436	CTO: CTO_PA_SMG_B3b3	R. Liberdade - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4783347055229	-1,6243345943440	PATAUATEUA	68660000	berna.vieras@gmail.com	593	Inativo	Nï¿½o	Residencial			20		PLANO 200 MBPS	17/2/2021		RODRIGO BRASIL DE SOUSA								Nï¿½o	Nï¿½o			\n"
+                + "1761322	45898	Josiane Oliveira Dos Santos	(91) 99350-5497	02374785289	44414	CTO: CTO_PA_SMG_B5c4	R. Cipriano Mendes Rodrigues , 57 , Sï¿½o Miguel do Guamï¿½ - PA, 68660-000, Brasil	-47,4723154068036	-1,6194957877775	Patauateua	68660000	josyolliver03@gmail.com	57	Inativo	Nï¿½o	Residencial	1x16/3		100		PLANO 100 MBPS	17/2/2021		JOSE FERNANDO DA SILVA TRINDADE								Nï¿½o	Nï¿½o			\n"
+                + "1761621		Jose Odivaldo Do Nascimento Oliveira	(91) 98032-5058	48769312249		CTO: CTO_PA_SMG_A2c4	Passagem  Sï¿½o Francisco , 217 , Sï¿½o Miguel do Guamï¿½ - PA, 68660-000,	-47,4829161108830	-1,6271840629258	Vila sorriso	68660000		217	Ativo	Nï¿½o	Residencial	1x16/2	Fibra ï¿½ptica						JOSE FERNANDO DA SILVA TRINDADE	POP Sï¿½O MIGUEL		L16	2				Nï¿½o	Nï¿½o			\n"
+                + "1761623	45954	Jose Odivaldo Do Nascimento Oliveira	(91) 98032-5058	48769312249	44471		Passagem  Sï¿½o Francisco , 217 , Sï¿½o Miguel do Guamï¿½ - PA, 68660-000,	-47,4829161108830	-1,6271840629258	Vila sorriso	68660000		217	Atendimento Reservado	Nï¿½o	Residencial		Fibra ï¿½ptica						JOSE FERNANDO DA SILVA TRINDADE								Nï¿½o	Nï¿½o			\n"
+                + "1767728	46531	Maria Gorete Carvalho Dos Reis	(91) 9829-10496	13286404268		CTO: CTO_PA_SMG_PPS_B14a2	Tv. Sï¿½o Jorge - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4768223644178	-1,6120288913940	Perpetuo Socorro	68660000		418	Ativo	Nï¿½o	Residencial	1x16/3	Fibra ï¿½ptica							POP P. SOCORRO		L-15	14				Nï¿½o	Nï¿½o			\n"
+                + "1767731	45764	Maria De Nazare Pereira Da Silva	(91) 98224-3659	80674330200		CTO: CTO_PA_SMG_A8b3	R. Bernardo Carvalho - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4857143411047	-1,6186565943063	OLHO D'ï¿½GUA	68660000		300	Atendimento Reservado	Nï¿½o	Residencial	1x16/1	Fibra ï¿½ptica	60		PLANO 200 MBPS	18/2/2021										Nï¿½o	Nï¿½o			\n"
+                + "1767742	46281	Ana Gabriela Brito Da Silva	(91) 98038-9807	02082220222		CTO: CTO_PA_SMG_A5c4	R. Timborana - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4905992944772	-1,6214970150313	CASTANHEIRA	68660000	gabriellabs93@gmail.com	S/N	Inativo	Nï¿½o	Residencial	1x16/4		130		PLANO 200 MBPS	22/2/2021										Nï¿½o	Nï¿½o			\n"
+                + "1805474	46729	Railson De Sousa Gama	(91) 98037-6330	09027449252		CTO: CTO_PA_SMG_B13a2	Tv. Sï¿½o Pedro - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4724804110454	-1,6168423188588	Piï¿½arreira	68660000		15	Inativo	Nï¿½o	Residencial	1x8/2															Nï¿½o	Nï¿½o			\n"
+                + "1808786	47119	Adriana De Oliveira Teixeira	(91) 99154-9558	98172077220	45641	CTO: CTO_PA_SMG_PPS_B2a2	R. Gonï¿½alo Braga, 868, Perpï¿½tuo Socorro, Sï¿½o Miguel do Guamï¿½ - PA, 68660-000, Brasil	-47,4742402441489	-1,6019981700938	Perpï¿½tuo Socorro	68660000		868	Ativo	Nï¿½o	Residencial	1x8/1	Fibra ï¿½ptica						RODRIGO BRASIL DE SOUSA	POP P. SOCORRO		L-15	2				Nï¿½o	Nï¿½o			\n"
+                + "1808902	47140	Francilene De Castro Lima	(91) 99616-1076	83044086272	45664	CTO: CTO_PA_SMG_PPS_B5c1	R. SEBASTIï¿½O SOARES	-47,4712937055226	-1,5996216376724	JARDIM AMERICA	68660000	castrofrancy629@gmail.com	4	Ativo	Nï¿½o	Residencial	1x8/7	Fibra ï¿½ptica	70		PLANO 200 MBPS	5/3/2021		RENATO PANTOJA	POP P. SOCORRO		L-15	5				Nï¿½o	Nï¿½o			\n"
+                + "1811950	47498	Layse De Nazare Gonzaga Braga	(91) 99986-0676	00808578251		CTO: CTO_PA_SMG_B14b3	R. Sete de janeiro - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4778016355817	-1,6165973622829	Perpetuo Socorro	68660000		255	Inativo	Nï¿½o	Residencial	1x16/7															Nï¿½o	Nï¿½o			\n"
+                + "1812143	47359	Josenilton Pereira Reis	(91) 98890-8527	09225439253	45865	CTO: CTO_PA_SMG_PPS_A2c4	Tv. Antonio piaui, 804-900, Sï¿½o Miguel do Guamï¿½ - PA, 68660-000, Brasil	-47,4791222537289	-1,6017138828609	Padre ï¿½ngelo	68660000		623	Ativo	Nï¿½o	Residencial	1x16/4	Fibra ï¿½ptica						DAVID DE SOUSA MARQUES	POP P. SOCORRO		L-16	2				Nï¿½o	Nï¿½o			\n"
+                + "1811915		Layse De Nazarï¿½ Gonzaga Braga	(91) 99986-0676	008.085.783-51		CTO: CTO_PA_SMG_B14b3	Av. Magalhï¿½es Barata, 255, Sï¿½o Miguel do Guamï¿½ - PA, 68660-000, Brasil	-47,4777911242583	-1,6165590126151	Perpï¿½tuo socorro	68660000		255	Inativo	Nï¿½o	Residencial	1x16/6							JAILSON DANIEL ALMEIDA								Nï¿½o	Nï¿½o			\n"
+                + "1812073	130	Policia Civil Do Estado Do Para	 91 98516-6998		46030	CTO: CTO_PA_SMG_A8c4	Tv. Jorge Carneiro - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4845996588956	-1,6185052320276		68660000		189	Aguardando Ativaï¿½ï¿½o	Nï¿½o	Residencial	1x16/2	Fibra ï¿½ptica			PLANO 200 MBPS	10/3/2021										Nï¿½o	Nï¿½o			\n"
+                + "1812075	47521	Maria Do Socorro Do Carmo Batista	(91) 98201-4556			CTO: CTO_PA_SMG_A6c4	R. Cantidio Nunes - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4827626822083	-1,6201694206761	Sï¿½o Manoel	68660000		4	Inativo	Nï¿½o	Residencial	1x16/2															Nï¿½o	Nï¿½o			\n"
+                + "1812193	47529	Ivin Stefany Oliveira Rodrigues	(91) 98024-8068	04129894250		CTO: CTO_PA_SMG_B7a5	R. Sï¿½o Pedro - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4648945889553	-1,6145769565676	Umarizal	68660000		S/N	Aguardando Ativaï¿½ï¿½o	Nï¿½o	Residencial	1x8/1	Fibra ï¿½ptica														Nï¿½o	Nï¿½o			\n"
+                + "1812011	47509	Danielly Santos De Jesus	(91) 99832-5797	04808404230		CTO: CTO_PA_SMG_PPS_B12c1	R. Agostinho Siqueira - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4748217288360	-1,6120106377050	Perpetuo Socorro	68660000		668	Ativo	Nï¿½o	Residencial	1x16/1	Fibra ï¿½ptica							POP P. SOCORRO		L-15	12				Nï¿½o	Nï¿½o			\n"
+                + "1812210	47559	Dario Augusto De Souza	(91) 99169-0559	01878492268	46073	CTO: CTO_PA_SMG_B1a2	R. Pio XII, 569, plPerpï¿½tuo Socorro Sï¿½o Miguel do Guamï¿½ - PA, 68660-000, Brasil	-47,4785238543018	-1,6170986611391	Perpï¿½tuo Socorro	68660000		569	Atendimento Reservado	Nï¿½o	Residencial	1x16/1	Fibra ï¿½ptica						RODRIGO BRASIL DE SOUSA								Nï¿½o	Nï¿½o			\n"
+                + "1835453	48790	Clayton Dias De Paiva	(91) 98101-7455	74461168204	47319	CTO: CTO_PA_SMG_B15a2	R. NEY PEIXOTO - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4797039766867	-1,6158862320033	PERPETUO SOCORRO	68660000	clayton_dias1984@hotmail.com	236	Aguardando Ativaï¿½ï¿½o	Nï¿½o	Residencial	1x16/1	Fibra ï¿½ptica	90		PLANO 100 MBPS	29/3/2021										Nï¿½o	Nï¿½o			\n"
+                + "1835639	48806	Eriton Januario De Freitas	(91) 98170-3530		47338	CTO: CTO_PA_SMG_A8c1	R. Jorge Carneiro- Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4881463577813	-1,6183687332612	Vila Nova	68660000	cristianealvesdosreis@gmail.com	178	Atendimento Reservado	Nï¿½o	Residencial	1x16/4	Fibra ï¿½ptica			PLANO 200 MBPS	1/4/2021										Nï¿½o	Nï¿½o			\n"
+                + "1835669	48817	Benedito Reis Dos Santos Costa	(91) 99120-7937		47345	CTO: CTO_PA_SMG_PPS_A13c1	Estrada Sï¿½o Miguel - Sï¿½o Miguel do Guamï¿½, PA - BR, 68660-000	-47,4901753644182	-1,6141003188553	Vila Franï¿½a	68660000		2	Aguardando Ativaï¿½ï¿½o	Nï¿½o	Residencial	1x16/5	Fibra ï¿½ptica														Nï¿½o	Nï¿½o			");
 
         btnAplyHeaderActionPerformed(null);
         btnAplyValuesActionPerformed(null);
@@ -477,7 +461,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
             }
         });
 
-        ckbShowDec.setText("Mostrar Decoração");
+        ckbShowDec.setText("Mostrar Decoraï¿½ï¿½o");
         ckbShowDec.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ckbShowDecActionPerformed(evt);
@@ -592,6 +576,8 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    //<editor-fold desc ="buttons Actions Performed">
+
     private void ckbFixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckbFixActionPerformed
         // TODO add your handling code here:
         floatingTable.setAlwaysOnTop(ckbFix.isSelected());
@@ -630,7 +616,6 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         initTableModdel();
         
         layoutTableHandlerLayoutPanel.updateHeaders(tableModel);
-
     }//GEN-LAST:event_btnAplyHeaderActionPerformed
 
     private void btnInitTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInitTableActionPerformed
@@ -642,13 +627,8 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         // TODO add your handling code here:
         floatingTable.sumRow(-1);
         UptadeButtons();
-        
-        int r,g,b, change = 35;
-        r = 220 + (swapColor? change:0);
-        g = 220 + (swapColor? change:0);
-        b = 220 + (swapColor? change:0);
-        
-        AllCellsColor(new Color(255, 220, 220), new Color(r, g, b), 1000);
+
+        AllCellsColor(floatingTable.getCells(), new Color(255, 220, 220), getSwappedCor(), 1000);
         swapColor = !swapColor;
     }//GEN-LAST:event_btnLastActionPerformed
     boolean swapColor = false;
@@ -656,16 +636,19 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         // TODO add your handling code here:
         floatingTable.sumRow(1);
         UptadeButtons();
-        
-        
+
+        AllCellsColor(floatingTable.getCells(), new Color(230, 255, 255), getSwappedCor(), 1000);
+
+    }//GEN-LAST:event_btnNextActionPerformed
+
+    private Color getSwappedCor(){
         int r,g,b, change = 35;
         r = 220 + (swapColor? change:0);
         g = 220 + (swapColor? change:0);
         b = 220 + (swapColor? change:0);
-        
-        AllCellsColor(new Color(230, 255, 255), new Color(r, g, b), 1000);
         swapColor = !swapColor;
-    }//GEN-LAST:event_btnNextActionPerformed
+        return new Color(r,g,b);
+    }
 
     private void ckbShowDecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckbShowDecActionPerformed
         // TODO add your handling code here:
@@ -673,6 +656,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         floatingTable.setUndecorated(ckbShowDec.isSelected());
         floatingTable.setVisible(true);
     }//GEN-LAST:event_ckbShowDecActionPerformed
+    //</editor-fold>
 
     //<editor-fold desc="Componentes Auto-Gerados">
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -708,80 +692,4 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
     //</editor-fold>
 }
-
-class ColorFade {
-
-        Color startColor;
-        double pass;
-        double r, g, b;
-        double rs, gs, bs;
-        public StaticCell tarCell;
-        private Color tarColor;
-
-        public ColorFade(StaticCell c, Color newColor, Color target, int interval) {
-            tarColor = new Color(target.getRGB());
-            tarCell = c;
-            if (newColor != null) {
-                tarCell.lblValue.setBackground(newColor);
-            }
-            startColor = c.lblValue.getBackground();
-            r = target.getRed() - startColor.getRed();
-            g = target.getGreen() - startColor.getGreen();
-            b = target.getBlue() - startColor.getBlue();
-
-            pass = (interval * 60.0d) / 1000.0;
-            if (pass < 3.0) {
-                pass = 0;
-                return;
-            }
-
-            rs = r / pass;
-            gs = g / pass;
-            bs = b / pass;
-
-            r = startColor.getRed();
-            g = startColor.getGreen();
-            b = startColor.getBlue();
-            
-            removeRunning();
-            
-            colorFades.add(this);
-        }
-        @Deprecated
-        void removeRunning(){
-            for(int i = 0; i< colorFades.size(); i++){
-                if(colorFades.get(i).tarCell == this.tarCell){
-                    colorFades.remove(i);
-                    return;
-                }
-            }
-        }
-
-        public void tick() {
-            Color newCor = new Color((int) r, (int) g, (int) b);
-            tarCell.lblValue.setBackground(newCor);
-            tarCell.lblHeader.setBackground(newCor.darker());
-            r += rs;
-            g += gs;
-            b += bs;
-            pass--;
-            if (r > 255 || r < 0) {
-                pass = 0;
-            }
-
-            if (g > 255 || g < 0) {
-                pass = 0;
-            }
-
-            if (b > 255 || b < 0) {
-                pass = 0;
-            }
-        }
-
-        private void terminate() {
-            tarCell.lblValue.setBackground(tarColor);
-            pass = 0;
-        }
-
-    }
 

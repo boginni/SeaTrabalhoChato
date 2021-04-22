@@ -35,7 +35,7 @@ public class MainFrame extends javax.swing.JFrame {
         jTabbedPane2.add("TableHandler", inputTableHandlerPanel);
         jTabbedPane2.add("TableLayout", layoutTableHandlerPanel);
         jTabbedPane2.add("Extratores", formatters);
-        
+        inputTableHandlerPanel.dummyTable();
         pack();
     }
 
