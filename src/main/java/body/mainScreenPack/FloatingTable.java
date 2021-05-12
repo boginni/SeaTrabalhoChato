@@ -1,72 +1,42 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package body.mainScreenPack;
 
 import body.mainScreenPack.Cells.*;
+import body.mainScreenPack.Cells.Buttons.ButtonCell;
+import body.mainScreenPack.Ults.TableController;
+import body.mainScreenPack.Ults.TableControllerTarget;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.table.TableModel;
+
+import static body.mainScreenPack.Ults.ColorFade.AllCellsColor;
 
 /**
  *
  * @author boginni
  */
-public class FloatingTable extends JFrame {
+public class FloatingTable extends JFrame implements TableControllerTarget {
 
-    interface onClickListener {
+    @Override
+    public void doCellsUpdate() {
+        System.out.println("Update Requested");
 
-        void mouseClick(FloatingTableCell cell, int click, boolean isPressed);
+        cells.forEach(cell -> {
+            cell.updateValue();
 
-    }
-    private static ArrayList<onClickListener> listeners = new ArrayList<>();
-
-    public static void addClickListener(onClickListener object) {
-        listeners.add(object);
-    }
-
-    public static void mouseClick(FloatingTableCell cell, int click, boolean isPressed) {
-        //System.out.println(cell.getValue()+" "+isPressed);
-        for (onClickListener curListener : listeners) {
-            curListener.mouseClick(cell, click, isPressed);
-        }
+        });
     }
 
-    class HeaderTableCell extends StaticCell {
-
-        int HeaderID;
-
-        public HeaderTableCell(String header, String value, int hID) {
-            super(header, value);
-            HeaderID = hID;
-            updateValue();
-        }
-
-        @Override
-        public void updateValue() {
-            setValue((String) getCurrentLayer().getValueAt(curRow, HeaderID));
-        }
-
-        @Override
-        public void setValue(String v) {
-            super.setValue(v); //To change body of generated methods, choose Tools | Templates.
-            getCurrentLayer().setValueAt(v, curRow, HeaderID);
-        }
-
+    @Override
+    public void doButtonsUpdate() {
+        btnCells.forEach(ButtonCell::updateValue);
     }
 
-    public FloatingTable(TableModel originalTable, TableModel layout, int startRow, LayoutManager gridLay) {
+    public FloatingTable(TableModel layout, int startRow, LayoutManager gridLay) {
         super();
 
         setLayout(gridLay);
-
-        setOriginalTable(originalTable);
 
         for (int i = 0; i < layout.getRowCount(); i++) {
 
@@ -78,19 +48,11 @@ public class FloatingTable extends JFrame {
             if (columID.equals("N/A")) {
                 curCell = new StaticCell(header, value);
             } else if (columID.equals("button")) {
-
-                curCell = new ButtonCell(header, null);
-                MouseAdapter m = new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        FloatingTable.mouseClick(curCell, Integer.parseInt(value), false);
-                    }
-                };
-                ((ButtonCell) curCell).setMouse(m);
+                curCell = ButtonCell.getButton(header, Integer.parseInt(value.toString()));
                 btnCells.add((ButtonCell) curCell);
             } else {
                 int hID = Integer.parseInt(columID);
-                curCell = new HeaderTableCell(header, "===========", hID);
+                curCell = new HeaderCell(header, "===========", hID);
             }
 
             cells.add(curCell);
@@ -99,67 +61,26 @@ public class FloatingTable extends JFrame {
         }
 
         pack();
+        TableController.setRow(startRow);
         setVisible(true);
-    }
 
-    private int curRow = 0;
-    private int curLayTable = 0;
-
-    public void setRow(int newRow) {
-        int maxSize = getCurrentLayer().getRowCount();
-        if (newRow >= maxSize) {
-
-            return;
-        }
-        if (newRow < 0) {
-
-            return;
-        }
-
-        curRow = newRow;
-
-        cells.forEach(cell -> {
-            cell.updateValue();
-        });
-
-    }
-
-    public void sumRow(int sum) {
-        setRow(curRow + sum);
-    }
-
-    public int getRow() {
-        return curRow;
+        AllCellsColor(getCells(), Color.BLACK, Color.white, 2000);
     }
 
     public FloatingTableCell[] getCells() {
         return cells.toArray(new FloatingTableCell[]{});
     }
-
-    public TableModel getCurrentLayer() {
-        return layerTables.get(curLayTable);
-    }
-
-    public int getCurrentLayerIndex() {
-        return curLayTable;
-    }
-
-    //TODO
-    public void setLayer(int newLayer) {
-
+    
+    public void importValue(int cellID, String value){
+        try{
+            ((HeaderCell)cells.get(cellID)).setValue(value);
+        } catch(Exception e){
+            
+        }
     }
 
     ArrayList<FloatingTableCell> cells = new ArrayList<>();
     ArrayList<ButtonCell> btnCells = new ArrayList<>();
-
-    public void setOriginalTable(TableModel t) {
-        originalTable = t;
-        layerTables.clear();
-        layerTables.add(originalTable);
-    }
-
-    TableModel originalTable;
-    ArrayList<TableModel> layerTables = new ArrayList<>();
 
 }
 

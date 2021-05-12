@@ -1,6 +1,7 @@
 package head;
 
 
+import head.interfaces.CopyListener;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;

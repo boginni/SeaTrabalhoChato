@@ -5,72 +5,28 @@
  */
 package body.mainScreenPack;
 
-import body.mainScreenPack.Cells.*;
 import body.mainScreenPack.Ults.ColorFade;
-import head.ClipBoard;
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import body.mainScreenPack.Ults.TableController;
+import body.mainScreenPack.Ults.TableModelCell;
+import body.mainScreenPack.Ults.TableModelColumProp;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-
-import static body.mainScreenPack.Ults.ColorFade.AllCellsColor;
 
 /**
  *
  * @author boginni
  */
-public class TableHandlerPanel extends javax.swing.JPanel implements body.mainScreenPack.FloatingTable.onClickListener {
-
-    //<editor-fold desc="Table Change Listener">
-    /*
-    interface TableChangeListener {
-
-        void onHeaderChange(TableChangeEvent e);
-
-        void onValueChange(TableChangeEvent e);
-
-        void onTableChange(TableChangeEvent e);
-
-    }
-
-    public class TableChangeEvent {
-
-        public int changeColum;
-        public int changeRoll;
-        public Object newValue;
-        public Object oldValue;
-
-        private void callHeaderChange() {
-            for (Object changeTarget : changeTargets) {
-                ((TableChangeListener) changeTarget).onHeaderChange(this);
-                ((TableChangeListener) changeTarget).onTableChange(this);
-            }
-        }
-
-        private void callValueChange() {
-            for (Object changeTarget : changeTargets) {
-                ((TableChangeListener) changeTarget).onValueChange(this);
-                ((TableChangeListener) changeTarget).onTableChange(this);
-            }
-        }
-
-    }
-
-    private static ArrayList<Object> changeTargets = new ArrayList<>();
-
-    public static void addTableChangeListener(Object target) {
-        if (target instanceof TableChangeListener) {
-            changeTargets.add(target);
-        }
-    } */
-    //</editor-fold>
+public class TableHandlerPanel extends javax.swing.JPanel{
 
     //<editor-fold desc="Table Moddel">
     Object[][] tableValues = {
@@ -84,30 +40,14 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
     boolean[] tableEditables = {
         true, false, false, true
     };
+    
+    
 
-    class MyTableModel extends DefaultTableModel {
-
-        private MyTableModel(Object[][] tableValues, String[] tableHeader) {
-            super(tableValues, tableHeader);
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            try {
-                return tableEditables[columnIndex];
-            } catch (Exception e) {
-                return true;
-            }
-        }
-    }
-
-    public TableModel tableModel = new MyTableModel(tableValues, tableHeader);
-
+    public TableModel tableModel = new DefaultTableModel(tableValues, tableHeader);
 
     void initTableModdel() {
-        tableModel = new MyTableModel(tableValues, tableHeader);
+        tableModel = new DefaultTableModel(tableValues, tableHeader);
         tableMain.setModel(tableModel);
-        //layer1 = new MyTableModel(tableValues, tableHeader);
 
         if (tableMain.getPreferredSize().width < tableMain.getParent().getWidth()) {
             tableMain.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -115,13 +55,9 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
             tableMain.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         }
 
-        TableChanged(tableModel);
-
+        TableController.boundTable(tableModel, tableHeader);
     }
 
-    public void TableChanged(TableModel newTable) {
-
-    }
     //</editor-fold>
 
     /**
@@ -132,135 +68,62 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         initTableModdel();
 
         //dummyTable();
-        FloatingTable.addClickListener(this);
-        UptadeButtons();
         tableMain.getTableHeader().setReorderingAllowed(false);
+
+        tableMain.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int frist = tableMain.getSelectedColumn();
+                int count = tableMain.getSelectedColumnCount();
+                columCurrentSelected = frist;
+                TableModelColumProp prop = (count == 1 && frist >= 0)?columProps[frist]:null;
+                setCurrentProp(prop);
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+
+            }
+        });
+        tableMain.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int frist = tableMain.getSelectedColumn();
+                int count = tableMain.getSelectedColumnCount();
+                columCurrentSelected = frist;
+                TableModelColumProp prop = (count == 1 && frist >= 0)?columProps[frist]:null;
+                setCurrentProp(prop);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+
 
         new Timer().schedule(ColorFade.colorFadeTick, 100l, (long) (1000.0 / 60.0));
     }
 
-    //<editor-fold desc="Floating Table">
-    //<editor-fold desc="COLOR FADE">
-   
 
-    //</editor-fold>
 
-    FloatingTable floatingTable;
-    @Deprecated
-    public TableLayoutPanel layoutTableHandlerLayoutPanel;
 
-    public void setTableLayout(TableLayoutPanel newLay) {
-        layoutTableHandlerLayoutPanel = newLay;
-    }
-
-    public void initTable() {
-        if (floatingTable != null) {
-            floatingTable.dispatchEvent(new WindowEvent(floatingTable, WindowEvent.WINDOW_CLOSING));
-        }
-        TableModel layout = layoutTableHandlerLayoutPanel.tableLayoutModel;
-        TableModel original = tableModel;
-
-        int maxCol = Integer.parseInt(spnColCont.getValue().toString());
-        int gapH = Integer.parseInt(spnHorizontalGap.getValue().toString());
-        int gapV = Integer.parseInt(spnVerticalGap.getValue().toString());
-        LayoutManager grid = new GridLayout(0, maxCol, gapH, gapV);
-        floatingTable = new FloatingTable(original, layout, 0, grid);
-        floatingTable.setBackground(Color.blue);
-        floatingTable.repaint();
-
-        floatingTable.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                floatingTable = null;
-                UptadeButtons();
-            }
-        });
-
-        pgbRow.setMaximum(tableModel.getRowCount() - 1);
-        ckbFixActionPerformed(null);
-        ckbShowDecActionPerformed(null);
-        UptadeButtons();
-        AllCellsColor(floatingTable.getCells(), Color.BLACK, Color.white, 2000);
-    }
-
-    void UptadeButtons() {
-
-        boolean notNull = floatingTable != null;
-        int curRow = 0, maxRow = 0;
-        if (notNull) {
-            curRow = floatingTable.getRow();
-            maxRow = tableModel.getRowCount();
-            lblCurLine.setText(String.valueOf(curRow));
-            pgbRow.setValue(curRow);
-            ckbFix.setSelected(false);
-            ckbShowDec.setSelected(false);
-        }
-
-        btnNext.setEnabled(notNull && curRow < maxRow - 1);
-        btnLast.setEnabled(notNull && curRow > 0);
-        ckbFix.setEnabled(notNull);
-        ckbShowDec.setEnabled(notNull);
-    }
-
-    @Override
-    public void mouseClick(FloatingTableCell cell, int click,boolean isPressed) {
-        String concat = " ";
-        if(cell == null){
-            return;
-        }
-        if (cell instanceof FloatingTable.HeaderTableCell) {
-
-            switch(click){
-
-                case 1:
-                    String newVar = cell.getValue();
-
-                    if(isPressed){
-                        newVar = String.format("%s%s%s", ClipBoard.getClipBoard(), concat, newVar);
-                    }
-
-                    ClipBoard.setClipBoardFormatted(newVar, true);
-                    new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
-                    break;
-                case 2:
-                    
-                    cell.setValue("");
-                    new ColorFade((StaticCell)cell, Color.red, new Color(240, 220, 220), 1500);
-                    break;
-                case 3:
-                    
-                    cell.setValue(ClipBoard.getClipBoardFormated());
-                    new ColorFade((StaticCell)cell, Color.green, new Color(200, 240, 220), 1500);
-                    break;
-            }
-
-            cell.updateValue();
-            return;
-        }
-        
-        if(cell instanceof ButtonCell){
-            switch(click){
-                case ButtonCell.BTN_NEXT:
-                    btnNextActionPerformed(null);
-                    return;
-                case ButtonCell.BTN_LAST:
-                    btnLastActionPerformed(null);
-                    return;
-            };
-        }
-        
-        if (cell instanceof StaticCell && click == 1) {
-            String newVar = cell.getValue();
-            if(isPressed){
-                newVar = String.format("%s%s%s", ClipBoard.getClipBoard(), concat, newVar);
-            }
-
-            ClipBoard.setClipBoardFormatted(newVar, true);
-            new ColorFade((StaticCell)cell, Color.blue, new Color(200, 220, 240), 1500);
-            return;
-        }
-
-    }
-    //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Dummy Table">
     public void dummyTable() {
@@ -309,7 +172,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel2 = new javax.swing.JPanel();
+        panTableValues = new javax.swing.JPanel();
         btnAplyHeader = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtHeaders = new javax.swing.JTextArea();
@@ -319,24 +182,22 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         jScrollPane2 = new javax.swing.JScrollPane();
         txtValues = new javax.swing.JTextArea();
         btnAplyValues = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        btnLast = new javax.swing.JButton();
-        lblCurLine = new javax.swing.JLabel();
-        btnNext = new javax.swing.JButton();
-        btnInitTable = new javax.swing.JButton();
-        spnColCont = new javax.swing.JSpinner();
-        final javax.swing.JLabel lblTitleLinha = new javax.swing.JLabel();
-        ckbFix = new javax.swing.JCheckBox();
-        ckbShowDec = new javax.swing.JCheckBox();
-        jSeparator2 = new javax.swing.JSeparator();
-        spnVerticalGap = new javax.swing.JSpinner();
-        final javax.swing.JLabel lblTitleLinha1 = new javax.swing.JLabel();
-        spnHorizontalGap = new javax.swing.JSpinner();
-        final javax.swing.JLabel lblTitleLinha2 = new javax.swing.JLabel();
-        spnCurRow = new javax.swing.JSpinner();
-        final javax.swing.JLabel lblTitleLinha3 = new javax.swing.JLabel();
-        pgbRow = new javax.swing.JProgressBar();
+        panPropColum = new javax.swing.JPanel();
+        final javax.swing.JPanel Prop_panGridBag = new javax.swing.JPanel();
+        final javax.swing.JLabel prop_lbl1 = new javax.swing.JLabel();
+        prop_txtColumName = new javax.swing.JTextField();
+        prop_txtNewLine = new javax.swing.JTextField();
+        prop_txtTab = new javax.swing.JTextField();
+        prop_ckbTab = new javax.swing.JCheckBox();
+        final javax.swing.JLabel prop_lbl2 = new javax.swing.JLabel();
+        prop_cmbCase = new javax.swing.JComboBox<>();
+        prop_txtEmpty = new javax.swing.JTextField();
+        prop_ckbEmpty = new javax.swing.JCheckBox();
+        prop_btnSave = new javax.swing.JButton();
+        prop_btnReset = new javax.swing.JButton();
+        prop_spnID = new javax.swing.JSpinner();
+        prop_lbl3 = new javax.swing.JLabel();
+        prop_btnSelectColum = new javax.swing.JButton();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jScrollPane4 = new javax.swing.JScrollPane();
         tableMain = new javax.swing.JTable();
@@ -347,7 +208,7 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
         jTabbedPane1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(230, 230, 240), 2));
 
-        jPanel2.setBackground(new java.awt.Color(220, 220, 220));
+        panTableValues.setBackground(new java.awt.Color(220, 220, 220));
 
         btnAplyHeader.setText("Aplicar");
         btnAplyHeader.addActionListener(new java.awt.event.ActionListener() {
@@ -375,18 +236,18 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
             }
         });
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout panTableValuesLayout = new javax.swing.GroupLayout(panTableValues);
+        panTableValues.setLayout(panTableValuesLayout);
+        panTableValuesLayout.setHorizontalGroup(
+            panTableValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panTableValuesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(panTableValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panTableValuesLayout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panTableValuesLayout.createSequentialGroup()
+                        .addGroup(panTableValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnAplyValues, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnAplyHeader, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -395,9 +256,9 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE))
                         .addGap(19, 19, 19))))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        panTableValuesLayout.setVerticalGroup(
+            panTableValuesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panTableValuesLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -415,137 +276,218 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Tabela", jPanel2);
+        jTabbedPane1.addTab("Tabela", panTableValues);
 
-        jPanel3.setLayout(new java.awt.GridBagLayout());
+        Prop_panGridBag.setLayout(new java.awt.GridBagLayout());
 
-        btnLast.setText("<");
-        btnLast.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnLastActionPerformed(evt);
-            }
-        });
-        jPanel3.add(btnLast, new java.awt.GridBagConstraints());
-
-        lblCurLine.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        lblCurLine.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblCurLine.setText("000");
+        prop_lbl1.setText("Nome");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.ipadx = 17;
-        jPanel3.add(lblCurLine, gridBagConstraints);
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 0.3;
+        gridBagConstraints.weighty = 0.1;
+        Prop_panGridBag.add(prop_lbl1, gridBagConstraints);
 
-        btnNext.setText(">");
-        btnNext.addActionListener(new java.awt.event.ActionListener() {
+        prop_txtColumName.setText("Colum Name");
+        prop_txtColumName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNextActionPerformed(evt);
+                prop_txtColumNameActionPerformed(evt);
             }
         });
-        jPanel3.add(btnNext, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 0.3;
+        gridBagConstraints.weighty = 0.2;
+        Prop_panGridBag.add(prop_txtColumName, gridBagConstraints);
 
-        btnInitTable.setText("Iniciar");
-        btnInitTable.setPreferredSize(new java.awt.Dimension(85, 23));
-        btnInitTable.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnInitTableActionPerformed(evt);
+        prop_txtNewLine.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                prop_txtNewLinePropertyChange(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 0.1;
+        Prop_panGridBag.add(prop_txtNewLine, gridBagConstraints);
 
-        spnColCont.setModel(new javax.swing.SpinnerNumberModel(8, 1, null, 1));
-
-        lblTitleLinha.setText("Colunas Max por Linha");
-
-        ckbFix.setText("Fixar na Tela");
-        ckbFix.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ckbFixActionPerformed(evt);
+        prop_txtTab.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                prop_txtTabPropertyChange(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 0.1;
+        Prop_panGridBag.add(prop_txtTab, gridBagConstraints);
 
-        ckbShowDec.setText("Mostrar Decora��o");
-        ckbShowDec.addActionListener(new java.awt.event.ActionListener() {
+        prop_ckbTab.setText("Tab");
+        prop_ckbTab.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ckbShowDecActionPerformed(evt);
+                prop_ckbTabActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 0.1;
+        Prop_panGridBag.add(prop_ckbTab, gridBagConstraints);
 
-        spnVerticalGap.setModel(new javax.swing.SpinnerNumberModel(2, 1, null, 1));
+        prop_ckbNewLine.setText("Nova linha");
+        prop_ckbNewLine.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prop_ckbNewLineActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.weightx = 0.1;
+        Prop_panGridBag.add(prop_ckbNewLine, gridBagConstraints);
 
-        lblTitleLinha1.setText("VerticalGap");
+        prop_lbl2.setText("Case");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        Prop_panGridBag.add(prop_lbl2, gridBagConstraints);
 
-        spnHorizontalGap.setModel(new javax.swing.SpinnerNumberModel(2, 1, null, 1));
+        prop_cmbCase.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Default", "UpperCase", "LowerCase" }));
+        prop_cmbCase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prop_cmbCaseActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        Prop_panGridBag.add(prop_cmbCase, gridBagConstraints);
 
-        lblTitleLinha2.setText("HorizontalGap");
+        prop_txtEmpty.setText("-");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        Prop_panGridBag.add(prop_txtEmpty, gridBagConstraints);
 
-        spnCurRow.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+        prop_ckbEmpty.setText("Vazio");
+        prop_ckbEmpty.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prop_ckbEmptyActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        Prop_panGridBag.add(prop_ckbEmpty, gridBagConstraints);
 
-        lblTitleLinha3.setText("Linha Inicial");
+        prop_btnSave.setText("Salvar");
+        prop_btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prop_btnSaveActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        Prop_panGridBag.add(prop_btnSave, gridBagConstraints);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        prop_btnReset.setText("Restaurar");
+        prop_btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prop_btnResetActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.ipady = 2;
+        Prop_panGridBag.add(prop_btnReset, gridBagConstraints);
+
+        prop_spnID.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        Prop_panGridBag.add(prop_spnID, gridBagConstraints);
+
+        prop_lbl3.setText("ColumID");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        Prop_panGridBag.add(prop_lbl3, gridBagConstraints);
+
+        prop_btnSelectColum.setText("Selecionar Coluna");
+        prop_btnSelectColum.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prop_btnSelectColumActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.1;
+        Prop_panGridBag.add(prop_btnSelectColum, gridBagConstraints);
+
+        javax.swing.GroupLayout panPropColumLayout = new javax.swing.GroupLayout(panPropColum);
+        panPropColum.setLayout(panPropColumLayout);
+        panPropColumLayout.setHorizontalGroup(
+            panPropColumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panPropColumLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnInitTable, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(spnColCont, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTitleLinha, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
-                    .addComponent(ckbFix, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ckbShowDec, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSeparator2)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(spnVerticalGap, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTitleLinha1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(spnHorizontalGap, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTitleLinha2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(spnCurRow, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblTitleLinha3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(pgbRow, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(Prop_panGridBag, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        panPropColumLayout.setVerticalGroup(
+            panPropColumLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panPropColumLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btnInitTable, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(44, 44, 44)
-                .addComponent(pgbRow, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(5, 5, 5)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnCurRow)
-                    .addComponent(lblTitleLinha3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(30, 30, 30)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnHorizontalGap)
-                    .addComponent(lblTitleLinha2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnVerticalGap)
-                    .addComponent(lblTitleLinha1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(spnColCont)
-                    .addComponent(lblTitleLinha, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ckbFix)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(ckbShowDec)
-                .addGap(52, 52, 52))
+                .addComponent(Prop_panGridBag, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(167, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Tabela Flutuante", jPanel1);
+        jTabbedPane1.addTab("Propiedades", panPropColum);
 
         tableMain.setModel(tableModel);
         tableMain.setColumnSelectionAllowed(true);
@@ -575,27 +517,93 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+    interface MainTableChanges{
+        public void updateValues();
+        public void updateHeaders(TableModel table);
+    }
 
-    //<editor-fold desc ="buttons Actions Performed">
+    static ArrayList<MainTableChanges> changeslisteners = new ArrayList<>();
 
-    private void ckbFixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckbFixActionPerformed
-        // TODO add your handling code here:
-        floatingTable.setAlwaysOnTop(ckbFix.isSelected());
-    }//GEN-LAST:event_ckbFixActionPerformed
+    public static void addChangeListener(MainTableChanges target){
+        changeslisteners.add(target);
+    }
+
+    public static void removeChangeListener(MainTableChanges target){
+        changeslisteners.remove(target);
+    }
+
+    TableModelColumProp columProps[];
+    boolean columSelected = false;
+    int columCurrentSelected = -1;
+    void setCurrentProp(TableModelColumProp prop){
+        boolean enabled = prop != null;
+
+        prop_ckbEmpty.setEnabled(enabled);
+        prop_ckbNewLine.setEnabled(enabled);
+        prop_ckbTab.setEnabled(enabled);
+        prop_cmbCase.setEnabled(enabled);
+        prop_txtColumName.setEnabled(enabled);
+
+        prop_txtEmpty.setEnabled(enabled);
+        prop_txtNewLine.setEnabled(enabled);
+        prop_txtTab.setEnabled(enabled);
+        prop_spnID.setEnabled(enabled);
+
+        prop_btnReset.setEnabled(enabled);
+        prop_btnSave.setEnabled(enabled);
+
+        if(!enabled){
+            prop_txtColumName.setText("Invalid");
+            prop_spnID.setValue(-1);
+            columSelected = false;
+
+
+            return;
+        }
+        columSelected = true;
+
+        prop_ckbEmpty.setSelected(prop.isSbr_overrideEmpty());
+        prop_txtEmpty.setText(prop.getVar_empty());
+        prop_txtEmpty.setEnabled(prop.isSbr_overrideEmpty());
+
+        prop_ckbTab.setSelected(prop.isSbr_overrideTab());
+        prop_txtTab.setText(prop.getVar_tab());
+        prop_txtTab.setEnabled(prop.isSbr_overrideTab());
+
+        prop_ckbNewLine.setSelected(prop.isSbr_overrideNewLine());
+        prop_txtNewLine.setText("");
+        prop_txtNewLine.setEnabled(prop.isSbr_overrideNewLine());
+
+        prop_txtColumName.setText(tableModel.getColumnName(columCurrentSelected));
+        prop_cmbCase.setSelectedIndex(prop.getVar_caseType());
+        prop_spnID.setValue(columCurrentSelected);
+        prop_spnID.setEnabled(false);
+        prop_txtColumName.setEnabled(false);
+
+
+    }
 
     private void btnAplyValuesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAplyValuesActionPerformed
         // TODO add your handling code here:
         String table = txtValues.getText();
-
         String[] rows = table.split("\n");
+
         int rowCount = rows.length;
         int columCont = tableHeader.length;
         tableValues = new Object[rowCount][columCont];
+
+        columProps = new TableModelColumProp[columCont];
+
+        System.out.println("Quantidade -> "+columCont);
+        for(int i = 0; i < columCont; i++){
+             columProps[i] = new TableModelColumProp();
+        }
+
         for (int i = 0; i < rows.length; i++) {
             String[] curRow = rows[i].split("\t");
 
             for (int j = 0; j < curRow.length && j < columCont; j++) {
-                tableValues[i][j] = curRow[j];
+                tableValues[i][j] = new TableModelCell(curRow[j], columProps[j]);
             }
         }
 
@@ -604,7 +612,6 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
 
     private void btnAplyHeaderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAplyHeaderActionPerformed
         // TODO add your handling code here:
-
         String table = txtHeaders.getText();
 
         String[] rows = table.split("\n");
@@ -614,77 +621,137 @@ public class TableHandlerPanel extends javax.swing.JPanel implements body.mainSc
         tableValues = new Object[][]{};
         TableModel oldHeader = tableModel;
         initTableModdel();
-        
-        layoutTableHandlerLayoutPanel.updateHeaders(tableModel);
+
+        changeslisteners.forEach(t -> t.updateHeaders(tableModel));
+
     }//GEN-LAST:event_btnAplyHeaderActionPerformed
+    
+    private void prop_txtColumNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_txtColumNameActionPerformed
+        if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        
+    }//GEN-LAST:event_prop_txtColumNameActionPerformed
 
-    private void btnInitTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInitTableActionPerformed
+    private void prop_ckbTabActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_ckbTabActionPerformed
+        if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        boolean b = prop_ckbTab.isSelected();
+        
+        prop.setSbr_overrideTab(b);
+        prop_txtTab.setEnabled(b);
+    }//GEN-LAST:event_prop_ckbTabActionPerformed
+
+    private void prop_ckbEmptyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_ckbEmptyActionPerformed
+         if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        boolean b = prop_ckbEmpty.isSelected();
+        prop.setSbr_overrideEmpty(b);
+        prop_txtEmpty.setEnabled(b);
+    }//GEN-LAST:event_prop_ckbEmptyActionPerformed
+
+    private void prop_btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_btnSaveActionPerformed
+        if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        prop.setVar_empty(prop_txtEmpty.getText());
+        prop.setVar_newLine(prop_txtNewLine.getText());
+        prop.setVar_tab(prop_txtTab.getText());
+        
+        tableMain.repaint();
+
+        TableController.requestCellsUpdate();
+    }//GEN-LAST:event_prop_btnSaveActionPerformed
+
+    private void prop_btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_btnResetActionPerformed
+       if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        prop.RezetValues();
+    }//GEN-LAST:event_prop_btnResetActionPerformed
+
+    private void prop_ckbNewLineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_ckbNewLineActionPerformed
+         if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        boolean b = prop_ckbEmpty.isSelected();
+        prop.setSbr_overrideNewLine(b);
+        prop_txtNewLine.setEnabled(b);
+    }//GEN-LAST:event_prop_ckbNewLineActionPerformed
+
+    private void prop_cmbCaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_cmbCaseActionPerformed
         // TODO add your handling code here:
-        initTable();
-    }//GEN-LAST:event_btnInitTableActionPerformed
+         if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        prop.setVar_caseType(prop_cmbCase.getSelectedIndex());
 
-    private void btnLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLastActionPerformed
+        TableController.requestCellsUpdate();
+        tableMain.repaint();
+    }//GEN-LAST:event_prop_cmbCaseActionPerformed
+
+    private void prop_btnSelectColumActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prop_btnSelectColumActionPerformed
         // TODO add your handling code here:
-        floatingTable.sumRow(-1);
-        UptadeButtons();
+        if(tableMain.getSelectedColumn() == -1){
+            return;
+        }
+        tableMain.setRowSelectionInterval(0, tableModel.getRowCount()-1);
+    }//GEN-LAST:event_prop_btnSelectColumActionPerformed
 
-        AllCellsColor(floatingTable.getCells(), new Color(255, 220, 220), getSwappedCor(), 1000);
-        swapColor = !swapColor;
-    }//GEN-LAST:event_btnLastActionPerformed
-    boolean swapColor = false;
-    private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
-        // TODO add your handling code here:
-        floatingTable.sumRow(1);
-        UptadeButtons();
+    private void prop_txtTabPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_prop_txtTabPropertyChange
+        if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        prop.setVar_tab(prop_txtTab.getText());
+    }//GEN-LAST:event_prop_txtTabPropertyChange
 
-        AllCellsColor(floatingTable.getCells(), new Color(230, 255, 255), getSwappedCor(), 1000);
+    private void prop_txtNewLinePropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_prop_txtNewLinePropertyChange
+        if(!columSelected){
+            return;
+        }
+        TableModelColumProp prop = columProps[columCurrentSelected];
+        prop.setVar_newLine(prop_txtNewLine.getText());
+    }//GEN-LAST:event_prop_txtNewLinePropertyChange
 
-    }//GEN-LAST:event_btnNextActionPerformed
-
-    private Color getSwappedCor(){
-        int r,g,b, change = 35;
-        r = 220 + (swapColor? change:0);
-        g = 220 + (swapColor? change:0);
-        b = 220 + (swapColor? change:0);
-        swapColor = !swapColor;
-        return new Color(r,g,b);
-    }
-
-    private void ckbShowDecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckbShowDecActionPerformed
-        // TODO add your handling code here:
-        floatingTable.dispose();
-        floatingTable.setUndecorated(ckbShowDec.isSelected());
-        floatingTable.setVisible(true);
-    }//GEN-LAST:event_ckbShowDecActionPerformed
     //</editor-fold>
 
     //<editor-fold desc="Componentes Auto-Gerados">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAplyHeader;
     private javax.swing.JButton btnAplyValues;
-    private javax.swing.JButton btnInitTable;
-    private javax.swing.JButton btnLast;
-    private javax.swing.JButton btnNext;
-    private javax.swing.JCheckBox ckbFix;
-    private javax.swing.JCheckBox ckbShowDec;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JLabel lblCurLine;
-    private javax.swing.JProgressBar pgbRow;
-    private javax.swing.JSpinner spnColCont;
-    private javax.swing.JSpinner spnCurRow;
-    private javax.swing.JSpinner spnHorizontalGap;
-    private javax.swing.JSpinner spnVerticalGap;
+    private javax.swing.JPanel panPropColum;
+    private javax.swing.JPanel panTableValues;
+    private javax.swing.JButton prop_btnReset;
+    private javax.swing.JButton prop_btnSave;
+    private javax.swing.JButton prop_btnSelectColum;
+    private javax.swing.JCheckBox prop_ckbEmpty;
+    private final javax.swing.JCheckBox prop_ckbNewLine = new javax.swing.JCheckBox();
+    private javax.swing.JCheckBox prop_ckbTab;
+    private javax.swing.JComboBox<String> prop_cmbCase;
+    private javax.swing.JLabel prop_lbl3;
+    private javax.swing.JSpinner prop_spnID;
+    private javax.swing.JTextField prop_txtColumName;
+    private javax.swing.JTextField prop_txtEmpty;
+    private javax.swing.JTextField prop_txtNewLine;
+    private javax.swing.JTextField prop_txtTab;
     private javax.swing.JTable tableMain;
     private javax.swing.JTextArea txtHeaders;
     private javax.swing.JTextArea txtValues;

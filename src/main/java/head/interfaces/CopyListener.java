@@ -1,4 +1,4 @@
-package head;
+package head.interfaces;
 
 public interface CopyListener {
 

@@ -5,6 +5,9 @@
  */
 package body.mainScreenPack;
 
+import body.Formatador;
+import body.mainScreenPack.Ults.TableController;
+import body.mainScreenPack.Ults.TableControllerTarget;
 import java.awt.event.WindowEvent;
 import javax.swing.table.TableModel;
 
@@ -12,8 +15,7 @@ import javax.swing.table.TableModel;
  *
  * @author boginni
  */
-public class MainFrame extends javax.swing.JFrame {
-
+public class MainFrame extends javax.swing.JFrame{
     /**
      * Creates new form Frame
      */
@@ -24,20 +26,34 @@ public class MainFrame extends javax.swing.JFrame {
     
     FloatingTable floatingTable;
     FormattersPanel formatters;
-    
+    ControllerHandlerPanel controllers;
+    HotKeysPanel hotKeysPanel;
+    MacroBuilder macroBuilder;
     public MainFrame() {
         initComponents();
         formatters = new FormattersPanel();
         
         inputTableHandlerPanel = new TableHandlerPanel();
         layoutTableHandlerPanel = new TableLayoutPanel();
-        inputTableHandlerPanel.layoutTableHandlerLayoutPanel = layoutTableHandlerPanel;
+        controllers = new ControllerHandlerPanel();
+        hotKeysPanel = new HotKeysPanel();
+        macroBuilder = new MacroBuilder();
         jTabbedPane2.add("TableHandler", inputTableHandlerPanel);
         jTabbedPane2.add("TableLayout", layoutTableHandlerPanel);
         jTabbedPane2.add("Extratores", formatters);
-        inputTableHandlerPanel.dummyTable();
+        jTabbedPane2.add("Controladores", controllers);
+        jTabbedPane2.add("HotKeys", hotKeysPanel);
+        jTabbedPane2.add("MacroBuilder",macroBuilder);
+        //inputTableHandlerPanel.dummyTable();
         pack();
+        
+        TableController t = new TableController();
+        
+        ControllerHandlerPanel.addPanelControllerListener(t);
+        Formatador.addExportListener(t);
     }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -49,9 +65,6 @@ public class MainFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jTabbedPane2 = new javax.swing.JTabbedPane();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(660, 360));
@@ -62,14 +75,6 @@ public class MainFrame extends javax.swing.JFrame {
                 jTabbedPane2StateChanged(evt);
             }
         });
-
-        jMenu1.setText("File");
-        jMenuBar1.add(jMenu1);
-
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
-
-        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -84,7 +89,7 @@ public class MainFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -93,13 +98,10 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void jTabbedPane2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPane2StateChanged
         // TODO add your handling code here:
-
+        layoutTableHandlerPanel.doBoundProcess();
     }//GEN-LAST:event_jTabbedPane2StateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JTabbedPane jTabbedPane2;
     // End of variables declaration//GEN-END:variables
 }

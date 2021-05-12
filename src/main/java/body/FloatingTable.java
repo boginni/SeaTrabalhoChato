@@ -1,5 +1,6 @@
 package body;
 
+import head.interfaces.GlobalKeyboardListener;
 import head.*;
 import main.Main;
 import org.json.simple.JSONArray;
@@ -14,7 +15,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Timer;
 
-public class FloatingTable extends JFrame implements BackgroundInputListener {
+public class FloatingTable extends JFrame implements GlobalKeyboardListener {
 
     public interface ChangeRowListener {
         void onRowChange(int newRow);
@@ -218,7 +219,7 @@ public class FloatingTable extends JFrame implements BackgroundInputListener {
         pack();
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        BackgroundListener.addListener(this);
+        BackgroundListener.addKeyboardListener(this);
         setPause(false);
 
         new Timer().schedule(colorFadeTick, 100l, (long) (1000.0 / 60.0));

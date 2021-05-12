@@ -1,16 +1,13 @@
 package body.mainScreenPack.Cells;
 
 import body.mainScreenPack.FloatingTable;
+import body.mainScreenPack.Ults.TableController;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class ClickListenerCell extends FloatingTableCell {
-
-
-
-
 
     static boolean isPressed = false;
     static int pressBtn = 0;
@@ -39,8 +36,8 @@ public class ClickListenerCell extends FloatingTableCell {
 
     };
 
-    void click(int click) { 
-        FloatingTable.mouseClick(this, click, isPressed);
+    public void click(int click) { 
+        TableController.mouseClick(this, click, isPressed);
     }
 
     public ClickListenerCell(String value) {

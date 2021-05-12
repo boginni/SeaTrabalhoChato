@@ -5,6 +5,9 @@
  */
 package body;
 
+import head.ExportListener;
+import head.interfaces.GlobalKeyboardListener;
+import head.interfaces.CopyListener;
 import head.*;
 
 import javax.swing.*;
@@ -20,7 +23,7 @@ import java.util.Vector;
  */
 public class CopyController extends javax.swing.JFrame implements
         CopyListener,
-        BackgroundInputListener,
+        GlobalKeyboardListener,
         ExportListener,
         FloatingTable.ChangeRowListener{
 
@@ -29,7 +32,7 @@ public class CopyController extends javax.swing.JFrame implements
      */
     public CopyController() {
         ClipBoard.addCopyListener(this);
-        BackgroundListener.addListener(this);
+        BackgroundListener.addKeyboardListener(this);
         FloatingTable.addRowListener(this);
         Formatador.addExportListener(this);
         initComponents();

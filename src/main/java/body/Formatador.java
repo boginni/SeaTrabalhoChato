@@ -265,12 +265,11 @@ public class Formatador extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnFormatActionPerformed
 
-    public static void addExportListener(Object target) {
-        if(target instanceof ExportListener)
-            exportListeners.add(target);
+    public static void addExportListener(ExportListener target) {
+       exportListeners.add(target);
     }
 
-    static ArrayList<Object> exportListeners = new ArrayList<>();
+    static ArrayList<ExportListener> exportListeners = new ArrayList<>();
     private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
         // TODO add your handling code here:
 
@@ -279,9 +278,9 @@ public class Formatador extends javax.swing.JFrame {
                 (Integer) spinnerCTO.getValue(),
                 (Integer) spinnerPort.getValue(),
                 (Integer) spinnerCable.getValue()};
-        for (Object e:exportListeners
+        for (ExportListener e:exportListeners
              ) {
-            ((ExportListener)e).onExport(strs,ints);
+            e.onExport(strs,ints);
         }
 
     }//GEN-LAST:event_btnExportActionPerformed

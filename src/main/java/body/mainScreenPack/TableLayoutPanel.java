@@ -12,11 +12,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import body.mainScreenPack.Ults.TableController;
 import javafx.print.Collation;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -30,7 +30,7 @@ import javax.swing.tree.TreeSelectionModel;
  *
  * @author boginni
  */
-public class TableLayoutPanel extends javax.swing.JPanel {
+public class TableLayoutPanel extends javax.swing.JPanel implements TableHandlerPanel.MainTableChanges {
 
     /**
      * Creates new form TablePanel
@@ -38,8 +38,7 @@ public class TableLayoutPanel extends javax.swing.JPanel {
     public TableLayoutPanel() {
         initComponents();
         updateButtons();
-        
-        
+        btnModeActionPerformed(null);
         panButtons.removeAll();
         panButtons.setLayout(new GridBagLayout());
         GridBagConstraints cons = new GridBagConstraints();
@@ -74,7 +73,10 @@ public class TableLayoutPanel extends javax.swing.JPanel {
         cons.weighty = 1;
         panButtons.add(Box.createGlue(), cons);
         scrollButtons.setViewportView(panButtons);
-        
+        tableLayout.putClientProperty("terminateEditOnFocusLost", true);
+
+
+        TableHandlerPanel.addChangeListener(this);
     }
 
     /**
@@ -86,6 +88,19 @@ public class TableLayoutPanel extends javax.swing.JPanel {
     String[] tableHeader = {
         "ID", "Titulo", "Conteúdo", "ColumID"
     };
+
+    public void doBoundProcess() {
+        CellEditor cellEditor = tableLayout.getCellEditor();
+        if (cellEditor != null) {
+            if (cellEditor.getCellEditorValue() != null) {
+                cellEditor.stopCellEditing();
+            } else {
+                cellEditor.cancelCellEditing();
+            }
+        }
+
+        TableController.boundTableLayout(tableLayoutModel);
+    }
 
     class MyTableModel extends DefaultTableModel {
 
@@ -250,8 +265,13 @@ public class TableLayoutPanel extends javax.swing.JPanel {
 
     ArrayList<HeaderButton> arrHeaderButtons = new ArrayList<>();
 
-    void updateHeaders(TableModel tableModel) {
+    @Override
+    public void updateValues() {
 
+    }
+
+    @Override
+    public void updateHeaders(TableModel tableModel) {
         // Buttons Pan
         panHeaders.removeAll();
         GridBagConstraints cons = new GridBagConstraints();
@@ -327,6 +347,7 @@ public class TableLayoutPanel extends javax.swing.JPanel {
         panHeaders = new javax.swing.JPanel();
         scrollButtons = new javax.swing.JScrollPane();
         panButtons = new javax.swing.JPanel();
+        btnMode = new javax.swing.JButton();
 
         setBorder(new javax.swing.border.MatteBorder(null));
 
@@ -468,13 +489,23 @@ public class TableLayoutPanel extends javax.swing.JPanel {
 
         tbpButtons.addTab("Buttons", scrollButtons);
 
+        btnMode.setText("btnMode");
+        btnMode.setEnabled(false);
+        btnMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModeActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(tbpButtons)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(tbpButtons)
+                    .addComponent(btnMode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -486,9 +517,12 @@ public class TableLayoutPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
                     .addComponent(layoutEditor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tbpButtons))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tbpButtons, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnMode)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -555,10 +589,23 @@ public class TableLayoutPanel extends javax.swing.JPanel {
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton5ActionPerformed
+    boolean btnMode_value = false;
+    private void btnModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModeActionPerformed
+        // TODO add your handling code here:
+        if(!btnMode_value){
+            btnMode.setText("Inserir");
+            btnMode_value = true;
+        } else {
+            btnMode.setText("Modificar");
+            btnMode_value = false;
+        }
+        
+    }//GEN-LAST:event_btnModeActionPerformed
 
     //</editor-fold>
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnMode;
     private javax.swing.JButton btnMoveDown;
     private javax.swing.JButton btnMoveUp;
     private javax.swing.JButton btnNewLine;

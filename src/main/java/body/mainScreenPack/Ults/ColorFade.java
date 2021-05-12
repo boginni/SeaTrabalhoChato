@@ -11,8 +11,6 @@ public class ColorFade {
 
     static ArrayList<ColorFade> colorFades = new ArrayList<>();
 
-
-
     public static TimerTask colorFadeTick = new TimerTask() {
         @Override
         public void run() {
@@ -32,14 +30,13 @@ public class ColorFade {
 
     public static void AllCellsColor(FloatingTableCell[] list, Color StarColor, Color endColor, int time) {
         colorFades.clear();
-        for (FloatingTableCell cell : list) {
+        for (FloatingTableCell cell: list) {
             if (cell instanceof StaticCell) {
                 new ColorFade((StaticCell) cell, StarColor, endColor, time);
             }
         }
 
     }
-
 
 
     Color startColor;
